@@ -43,13 +43,8 @@
 ### A. ✅ 자동 피어 선정 — 완료 (2026-05-09)
 DART `company.json` 의 KSIC induty_code prefix 매칭으로 해결. 5→4→3자리 단계 확장 + 시총 상위 250 풀 + 24h 캐시 (`data/cache/induty_code.json`). KRX OpenAPI 401 / pykrx 사이트 변경 버그 모두 우회. 코드: `src/collectors/dart_openapi.py:fetch_company`, `src/meta/peers.py:_try_dart_induty`.
 
-### B. 검증기 unmatched 줄이기 (다음 우선)
-
-**현상**: 검증 배지가 `fail` (329180: 14/85≈16%, 456160: 13/76≈17%). 미매칭 사례 대부분이 RSI/52주 위치 같은 **analyzer 파생값**. raw JSON 에 원본 시세만 있고 계산값이 없어서 정상값임에도 unmatched.
-
-**해결**: `validators/numbers.py` 가 multiset 에 raw JSON 외 `enriched_price` (analyzer 출력) 의 numeric leaves 도 포함하도록 확장. main.py 에서 `enriched_price` 를 `_enriched.json` 으로 raw_dir 에 저장하면 검증기가 자연 인식. 또는 validator API 에 `extra_sources` 인자 추가.
-
-목표: unmatched <5% → fail → ok 배지.
+### B. ✅ 검증기 unmatched 줄이기 — 완료 (2026-05-09)
+`main.py:build` 가 `enriched_price` + `signals` + `header` + `peer_rows` + `macro_cards` 를 `{ticker}_enriched.json` 으로 raw_dir 에 함께 저장. validator 의 기존 `{ticker}_*.json` glob 으로 자연 인식. **329180: 85/85 matched (0 unmatched), 456160: 76/76 matched** → 두 종목 모두 `pass`.
 
 ### C. 수급 차트 시각화 점검
 

@@ -523,6 +523,31 @@ def build(args: CliArgs) -> Path:
         "validation": None,
     }
 
+    # ─── analyzer 파생값을 raw_dir 에 함께 저장 (validator multiset 확장) ──
+    # raw JSON 만으로는 RSI / 52주 위치 등 derived 값이 unmatched 로 잡히므로,
+    # ``{ticker}_enriched.json`` 으로 같이 저장하면 validator 의 ``{ticker}_*.json`` glob
+    # 에 자동 인식되어 매칭률이 올라간다.
+    enriched_payload = {
+        "price_records": json.loads(enriched_price.to_json(orient="records"))
+        if not enriched_price.empty
+        else [],
+        "signals": signals,
+        "header": header,
+        "peer_rows": peer_rows,
+        "macro_cards": macro_cards,
+    }
+    _save_raw(
+        {
+            "data": enriched_payload,
+            "source": "derived:price_analyzer+peer+macro",
+            "tool_args": {"ticker": args.ticker},
+            "fetched_at": _now_iso_utc(),
+        },
+        raw_dir,
+        args.ticker,
+        "enriched",
+    )
+
     out_dir = OUTPUT_DIR / args.ticker
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{date_str}.html"
