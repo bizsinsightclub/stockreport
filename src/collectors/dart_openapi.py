@@ -49,6 +49,11 @@ def _cache_path() -> Path:
     return here / "data" / "cache" / "corp_code.json"
 
 
+def _induty_cache_path() -> Path:
+    here = Path(__file__).resolve().parents[2]
+    return here / "data" / "cache" / "induty_code.json"
+
+
 # ─── 공시 검색 ───────────────────────────────────────────────────────
 
 
@@ -240,3 +245,90 @@ def fetch_financials_quarterly(corp_code: str, year: int, quarter: int) -> dict[
     if rc is None:
         raise ValueError(f"unsupported quarter: {quarter}")
     return _fetch_fnltt(corp_code, year, rc)
+
+
+# ─── 회사 메타 (induty_code 등) ─────────────────────────────────────
+
+
+def fetch_company(corp_code: str) -> dict[str, Any]:
+    """``company.json`` — induty_code, est_dt 등 회사 기본 정보."""
+    key = _api_key()
+    if not key:
+        raise RuntimeError("DART_API_KEY 미설정")
+    url = f"{_BASE}/company.json"
+    resp = requests.get(url, params={"crtfc_key": key, "corp_code": corp_code}, timeout=_TIMEOUT)
+    resp.raise_for_status()
+    payload = resp.json()
+    if payload.get("status") != "000":
+        raise RuntimeError(f"DART company.json status={payload.get('status')} msg={payload.get('message')}")
+    return payload
+
+
+def _load_induty_cache() -> dict[str, str]:
+    path = _induty_cache_path()
+    if not path.exists():
+        return {}
+    age = time.time() - path.stat().st_mtime
+    if age > _CACHE_TTL_SEC:
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def _save_induty_cache(cache: dict[str, str]) -> None:
+    path = _induty_cache_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
+
+
+def lookup_induty_code(stock_code: str) -> str | None:
+    """6자리 ``stock_code`` → KSIC 5자리 induty_code. 24h 캐시."""
+    cache = _load_induty_cache()
+    if stock_code in cache:
+        return cache[stock_code] or None
+    cc = lookup_corp_code(stock_code)
+    if not cc:
+        cache[stock_code] = ""
+        _save_induty_cache(cache)
+        return None
+    try:
+        comp = fetch_company(cc)
+        ind = (comp.get("induty_code") or "").strip()
+    except Exception as exc:  # noqa: BLE001
+        logger.info("induty_code lookup 실패 %s: %s", stock_code, exc)
+        cache[stock_code] = ""
+        _save_induty_cache(cache)
+        return None
+    cache[stock_code] = ind
+    _save_induty_cache(cache)
+    return ind or None
+
+
+def bulk_lookup_induty_codes(stock_codes: list[str]) -> dict[str, str]:
+    """여러 ticker 의 induty_code 를 한 번에 — 캐시 활용. 빈 문자열은 매핑 없음."""
+    cache = _load_induty_cache()
+    dirty = False
+    out: dict[str, str] = {}
+    for tk in stock_codes:
+        if tk in cache:
+            out[tk] = cache[tk]
+            continue
+        cc = lookup_corp_code(tk)
+        if not cc:
+            cache[tk] = ""
+            out[tk] = ""
+            dirty = True
+            continue
+        try:
+            comp = fetch_company(cc)
+            ind = (comp.get("induty_code") or "").strip()
+        except Exception:  # noqa: BLE001
+            ind = ""
+        cache[tk] = ind
+        out[tk] = ind
+        dirty = True
+    if dirty:
+        _save_induty_cache(cache)
+    return out

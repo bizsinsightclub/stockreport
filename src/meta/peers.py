@@ -1,11 +1,12 @@
 """피어 자동 선정.
 
-전략:
+전략 (시도 순서):
 1. ``override`` 가 주어지면 그대로 반환 (검증만).
-2. KRX OpenAPI ``sto/stk_bydd_trd`` (+ ``sto/ksq_bydd_trd``) 로 시총 랭킹 수집.
-   ``IDX_IND_CD`` 가 같은 종목들로 좁혀 시총 desc 상위 N (target 제외).
-3. KRX OpenAPI 실패 시 pykrx ``get_market_cap_by_ticker`` 로 fallback.
-4. 모두 실패하면 ``degraded=True`` 와 빈 리스트.
+2. KRX OpenAPI ``stk_isu_base_info`` 의 ``IDX_IND_CD`` 매칭. (포털 승인 필요)
+3. **DART induty_code 매칭** — 시총 상위 풀에서 KSIC 5자리 → 4자리 → 3자리 prefix 매칭.
+4. pykrx ``get_market_cap_by_ticker`` 시총 상위 N (섹터 무관, ``degraded=True``).
+
+DART 경로의 induty_code 는 ``data/cache/induty_code.json`` 24h 캐시.
 """
 
 from __future__ import annotations
@@ -96,6 +97,78 @@ def _try_krx_openapi(target_ticker: str, today_yyyymmdd: str, n: int) -> tuple[l
     return fallback, "KRX 업종 매칭 실패 — 시총 상위로 대체"
 
 
+def _detect_market(stk: Any, target_ticker: str, today_yyyymmdd: str) -> str:
+    """target 이 KOSPI 인지 KOSDAQ 인지 — pykrx ticker list 로 판별. 실패 시 'ALL'."""
+    try:
+        if target_ticker in stk.get_market_ticker_list(today_yyyymmdd, market="KOSPI"):
+            return "KOSPI"
+        if target_ticker in stk.get_market_ticker_list(today_yyyymmdd, market="KOSDAQ"):
+            return "KOSDAQ"
+    except Exception:  # noqa: BLE001
+        pass
+    return "ALL"
+
+
+# DART induty 매칭에서 보는 시총 상위 풀 크기
+_INDUTY_POOL_SIZE = 250
+
+
+def _try_dart_induty(target_ticker: str, today_yyyymmdd: str, n: int) -> tuple[list[str], str] | None:
+    """DART ``company.json`` 의 KSIC ``induty_code`` 로 같은 산업 매칭.
+
+    1. target induty_code 조회.
+    2. 같은 시장 (KOSPI/KOSDAQ) 시총 상위 ``_INDUTY_POOL_SIZE`` 의 induty_code 일괄 조회 (캐시).
+    3. 5자리 → 4자리 → 3자리 prefix 매칭 단계 확장.
+    """
+    stk = _safe_pykrx()
+    if stk is None:
+        return None
+
+    try:
+        from src.collectors import dart_openapi as dart
+    except ImportError:
+        return None
+
+    target_ind = dart.lookup_induty_code(target_ticker)
+    if not target_ind:
+        return None
+
+    market = _detect_market(stk, target_ticker, today_yyyymmdd)
+    try:
+        cap_df = stk.get_market_cap_by_ticker(today_yyyymmdd, market=market)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("induty 경로 시총 조회 실패: %s", exc)
+        return None
+    if cap_df is None or len(cap_df) == 0:
+        return None
+
+    sorted_caps = cap_df.sort_values("시가총액", ascending=False)
+    pool_tickers = [
+        str(tk) for tk in sorted_caps.index[: _INDUTY_POOL_SIZE]
+        if str(tk) != target_ticker
+    ]
+
+    induty_map = dart.bulk_lookup_induty_codes(pool_tickers)
+    candidates = [
+        (tk, induty_map.get(tk, ""), int(sorted_caps.loc[tk, "시가총액"]))
+        for tk in pool_tickers
+        if induty_map.get(tk)
+    ]
+
+    for prefix_len in (5, 4, 3):
+        same = [
+            (tk, cap) for (tk, ind, cap) in candidates
+            if ind[:prefix_len] == target_ind[:prefix_len]
+        ]
+        same.sort(key=lambda x: x[1], reverse=True)
+        if len(same) >= max(1, min(n, 2)):
+            peers = [tk for (tk, _) in same[:n]]
+            note = f"DART induty {target_ind} ({prefix_len}자리 prefix, market={market})"
+            return peers, note
+
+    return None
+
+
 def _try_pykrx(target_ticker: str, sector_code: str, today_yyyymmdd: str, n: int) -> tuple[list[str], bool, str]:
     """pykrx ``get_market_cap_by_ticker`` fallback. (peers, degraded, note)."""
     stk = _safe_pykrx()
@@ -171,13 +244,19 @@ def auto_select(
         fb = [str(tk) for tk in sorted_caps.index if str(tk) != target_ticker][:n]
         return PeerSelection(fb, True, "섹터 분류 미해결 — 시총 상위로 대체 선정")
 
-    # 1) KRX OpenAPI
+    # 1) KRX OpenAPI (포털 승인 필요)
     krx_result = _try_krx_openapi(target_ticker, today_yyyymmdd, n)
     if krx_result is not None:
         peers, note = krx_result
         return PeerSelection(peers=peers, degraded=bool(note), note=note)
 
-    # 2) pykrx
+    # 2) DART induty_code 매칭
+    dart_result = _try_dart_induty(target_ticker, today_yyyymmdd, n)
+    if dart_result is not None:
+        peers, note = dart_result
+        return PeerSelection(peers=peers, degraded=False, note=note)
+
+    # 3) pykrx 시총 상위 (섹터 무관 — degraded)
     peers, degraded, note = _try_pykrx(target_ticker, sector_code, today_yyyymmdd, n)
     return PeerSelection(peers=peers, degraded=degraded, note=note)
 
