@@ -128,8 +128,33 @@ def price_chart(enriched: pd.DataFrame, *, height: int = 320) -> str:
     return _to_div(fig)
 
 
+# pykrx ``get_market_trading_value_by_date`` 컬럼 → 표시 이름 매핑
+_FLOW_DISPLAY_NAME = {
+    "외국인합계": "외국인",
+    "외국인계": "외국인",
+    "외국인": "외국인",
+    "기관합계": "기관",
+    "기관계": "기관",
+    "기관": "기관",
+    "개인": "개인",
+    "기타법인": "기타법인",
+}
+
+# 그리는 순서 — 뒤에 그릴수록 위에 올라옴. 외국인을 마지막에 그려 강조.
+_FLOW_PLOT_ORDER = ["기타법인", "개인", "기관", "외국인"]
+
+_FLOW_STYLE = {
+    "외국인": {"color": COLOR_ACCENT, "width": 2.4},        # warm gold (메인)
+    "기관": {"color": COLOR_ACCENT_SOFT, "width": 1.6},     # dusty mauve
+    "개인": {"color": COLOR_MUTED, "width": 1.2},
+    "기타법인": {"color": "#3a4a5a", "width": 1.0},
+}
+
+_KRW_PER_OK = 1e8  # 1억 원
+
+
 def flow_chart(flow_enriched: pd.DataFrame, *, height: int = 260) -> str:
-    """외/기/개 누적 수급."""
+    """외/기/개 누적 순매수 (억원). 외국인 라인을 메인으로 강조."""
     try:
         import plotly.graph_objects as go  # type: ignore
     except ImportError:
@@ -137,24 +162,38 @@ def flow_chart(flow_enriched: pd.DataFrame, *, height: int = 260) -> str:
     if flow_enriched is None or flow_enriched.empty:
         return _empty("수급 데이터 없음")
 
-    fig = go.Figure()
-    color_map = {"외국인": COLOR_ACCENT, "기관": COLOR_ACCENT_SOFT, "개인": COLOR_MUTED}
+    # display_name → DataFrame 컬럼 매핑 (raw 합계 컬럼 우선)
+    display_to_col: dict[str, str] = {}
     for col in flow_enriched.columns:
         if not col.endswith("_누적"):
             continue
-        base = col.replace("_누적", "")
+        raw_base = col.replace("_누적", "")
+        disp = _FLOW_DISPLAY_NAME.get(raw_base, raw_base)
+        # ``외국인합계`` 가 ``외국인`` 보다 우선 (pykrx 의 진짜 합계).
+        if disp not in display_to_col or raw_base.endswith("합계"):
+            display_to_col[disp] = col
+
+    fig = go.Figure()
+    for disp in _FLOW_PLOT_ORDER:
+        col = display_to_col.get(disp)
+        if col is None:
+            continue
+        style = _FLOW_STYLE.get(disp, {"color": COLOR_TEXT, "width": 1.2})
+        y_oku = flow_enriched[col].astype(float) / _KRW_PER_OK
         fig.add_trace(
             go.Scatter(
                 x=flow_enriched.index,
-                y=flow_enriched[col],
+                y=y_oku,
                 mode="lines",
-                name=base,
-                line={"color": color_map.get(base, COLOR_TEXT), "width": 1.5},
+                name=disp,
+                line={"color": style["color"], "width": style["width"]},
+                hovertemplate="%{x|%Y-%m-%d}<br>%{y:+,.0f} 억원<extra>" + disp + "</extra>",
             )
         )
 
     layout = dict(_LAYOUT_BASE)
     layout["height"] = height
+    layout["yaxis"] = {**layout.get("yaxis", {}), "title": {"text": "누적 순매수 (억원)", "font": {"color": COLOR_MUTED, "size": 10}}}
     fig.update_layout(**layout)
     return _to_div(fig)
 

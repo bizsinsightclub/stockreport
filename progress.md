@@ -46,9 +46,8 @@ DART `company.json` 의 KSIC induty_code prefix 매칭으로 해결. 5→4→3�
 ### B. ✅ 검증기 unmatched 줄이기 — 완료 (2026-05-09)
 `main.py:build` 가 `enriched_price` + `signals` + `header` + `peer_rows` + `macro_cards` 를 `{ticker}_enriched.json` 으로 raw_dir 에 함께 저장. validator 의 기존 `{ticker}_*.json` glob 으로 자연 인식. **329180: 85/85 matched (0 unmatched), 456160: 76/76 matched** → 두 종목 모두 `pass`.
 
-### C. 수급 차트 시각화 점검
-
-수급 raw JSON 은 121일 일별 시계열 정상이지만 `chart_builder.flow_chart` 가 어떤 컬럼을 메인으로 쓰는지 확인 필요. 외국인합계 누적순매수 라인이 메인이 되도록 `renderer/charts.py` 의 flow 차트 부분 점검.
+### C. ✅ 수급 차트 시각화 점검 — 완료 (2026-05-09)
+`renderer/charts.py:flow_chart` 의 color_map 키가 `외국인` / `기관` / `개인` 만 갖고 있어 pykrx 의 `외국인합계` / `기관합계` / `기타법인` 컬럼이 fallback color 로 그려지던 문제. `_FLOW_DISPLAY_NAME` 매핑 + `_FLOW_PLOT_ORDER` (외국인 마지막 = 위에 그려짐) + `_FLOW_STYLE` (외국인 width 2.4 / warm gold 강조) 추가. y축 단위 억원 변환 + hover 템플릿 명시.
 
 ### D. (있다면) Phase 2 진입 준비
 
