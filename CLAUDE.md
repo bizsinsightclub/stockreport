@@ -154,13 +154,30 @@ from src.analyzers import price as price_analyzer
 - 새 차트는 반드시 `_to_div()` 거쳐 HTML div 문자열로 반환
 - legend는 차트 위쪽 가로 배치, hover label 다크 테마
 
-## 7. GitHub Actions 운영
+## 7. 자동화 운영
 
-> 현재 cron 워크플로우는 사용하지 않는다. 사용자 호출형 슬래시 커맨드/CLI 만 사용. (Phase 2 이후 자동 발행이 필요하면 재논의)
+### 7.1 GitHub Actions cron — 사용 안 함
+GitHub Actions cron 은 도입하지 않는다. pykrx 가 data.krx.co.kr 로그인을 한국 IP 에서만 안정적으로 처리하기 때문 (Actions 미국 IP 에서 차단 위험).
 
-### 7.1 secrets (로컬 `.env`)
-- `DART_API_KEY`: opendart.fss.or.kr (공시·재무 XBRL)
+### 7.2 로컬 Windows 작업 스케줄러 + GitHub Pages (현재 운영)
+사용자 호스트(Windows)에서 매시간 빌드 후 정적 HTML 만 GitHub Pages 로 push. `scripts/hourly.ps1` 가 다음을 책임진다:
+- 평일 09–16시 KST 외 즉시 종료 (주말 / 장외시간)
+- 한국 공휴일은 ``holidays`` 패키지로 스킵
+- 종목별 빌드 → ``data/output/`` HTML 변경 시에만 commit/push (의미 없는 push 방지)
+
+등록 명령 (관리자 PowerShell):
+```
+schtasks /create /sc HOURLY /tn "KRX_Reporter" /tr "powershell -NoProfile -ExecutionPolicy Bypass -File C:\pjt\reporter\scripts\hourly.ps1" /st 09:00 /f
+```
+
+레포 push 대상: `bizsinsightclub/stockreport` (공개) — `data/output/**/*.html` 만. raw / cache / `.env` 는 `.gitignore` 로 절대 push 안 됨.
+
+### 7.3 secrets (로컬 `.env` 만, GitHub 에는 절대 push 금지)
+- `DART_API_KEY`: opendart.fss.or.kr (공시·재무 XBRL · induty_code)
 - `KRX_API_KEY`: openapi.krx.co.kr (선택, 미발급 시 pykrx 자동 fallback)
+- `KRX_ID` / `KRX_PW`: data.krx.co.kr 로그인 (pykrx 1.2.x 인증)
+
+`.env` 는 `.gitignore` 에 포함. 공개 레포에 절대 들어가지 않도록 매 commit 전 staged 목록 확인.
 
 ## 8. 의존성 관리
 

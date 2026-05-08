@@ -18,7 +18,8 @@ Phase 1 완료 시점
 | 분석 대상 | 사용자 입력 ticker (KRX). 단일 종목당 1개 리포트 | 임의 종목 일반화, 그룹 종합은 추후 옵션 |
 | 리포트 섹션 | 시세, 수급, 기술지표, 공시, 재무제표, 피어 비교, 거시 (총 7섹션) | Balanced 범위 — 사용자가 명시 선택 |
 | 산출물 | 정적 HTML 대시보드 | 운영 부담 최소 |
-| 실행/배포 | 사용자 호출형 CLI/슬래시 커맨드. 정적 파일은 로컬 + 선택적 수동 publish | 노트북 의존성 OK, 사용자 의도에 맞춤 |
+| 실행/배포 | 사용자 호출형 CLI + 로컬 Windows 작업 스케줄러로 매시간 빌드/push (평일 09–16시 KST). GitHub Pages 정적 서빙 (bizsinsightclub/stockreport). | 한국 IP 의존(pykrx) 때문에 cloud cron 회피, 사용자 호스트에서 자동 갱신 |
+| 자동 피어 선정 | DART ``company.json`` KSIC induty_code 5→4→3 자리 prefix 매칭 (시총 상위 250 풀, KOSPI/KOSDAQ 자동 분리) | KRX OpenAPI ``stk_isu_base_info`` 401 + pykrx ``get_market_sector_classifications`` 라이브러리 버그 우회 |
 | MCP 호출 | Python MCP SDK 직접 호출 (LangChain 미사용) | 경량, LLM 불필요 |
 | 데이터 1차 소스 | `korea-stock-mcp` + pykrx fallback | DART + KRX 공식 API 통합 + 키 없이도 동작 |
 | LLM 코멘트 | **Phase 1 미사용 / Phase 2 도입 예정** | 사용자가 Phase 1 종료 후 LLM + claim-level citation 도입 결정 |
