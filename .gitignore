@@ -1,0 +1,33 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+.env
+.idea/
+.vscode/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.DS_Store
+Thumbs.db
+
+# Raw / cache 비공개 (HTML만 push)
+data/raw/
+data/cache/
+
+# 검증 사이드카는 push 안 함
+data/output/**/*.validation.json
+
+# 로그
+*.log
+logs/
+
+# OMC / Claude Code 세션 상태
+.omc/
+.claude/
+
+# Keep directory shells
+!data/raw/.gitkeep

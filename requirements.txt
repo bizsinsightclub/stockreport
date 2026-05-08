@@ -1,0 +1,12 @@
+mcp>=1.0
+pandas>=2.2
+numpy>=1.26
+plotly>=5.22
+jinja2>=3.1
+beautifulsoup4>=4.12
+lxml>=5.2
+requests>=2.32
+pykrx>=1.0.45
+python-dateutil>=2.9
+python-dotenv>=1.0
+holidays>=0.40

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{{ name }} · Daily {{ as_of }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+<style>
+  :root{
+    --bg:#0f0f10;--surface:#16161a;--surface-2:#1c1c21;
+    --text:#e8e6e3;--muted:#7a7a82;--border:#26262b;
+    --up:#e85d4a;--down:#3a7bd5;--accent:#d4a574;--accent-soft:#9c8cb6;
+    --display:'Fraunces',serif;--mono:'JetBrains Mono',monospace;--body:'Noto Sans KR',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--body);font-weight:300;line-height:1.6;-webkit-font-smoothing:antialiased}
+  body{padding:0;min-height:100vh;background-image:radial-gradient(circle at 15% 0%,rgba(212,165,116,.05) 0%,transparent 40%),radial-gradient(circle at 85% 100%,rgba(156,140,182,.04) 0%,transparent 40%)}
+  .grain{position:fixed;inset:0;pointer-events:none;opacity:.025;z-index:1;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .container{max-width:1280px;margin:0 auto;padding:48px 32px;position:relative;z-index:2}
+
+  /* HEADER */
+  header{display:grid;grid-template-columns:1fr auto;gap:32px;align-items:end;padding-bottom:32px;border-bottom:1px solid var(--border);margin-bottom:48px}
+  .brand{font-family:var(--mono);font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+  h1{font-family:var(--display);font-weight:300;font-size:clamp(2.5rem,5vw,4rem);line-height:1;letter-spacing:-.02em}
+  h1 em{font-style:italic;font-weight:400;color:var(--accent)}
+  .ticker{font-family:var(--mono);font-size:13px;color:var(--muted);margin-top:12px}
+  .price-block{text-align:right;font-family:var(--mono)}
+  .price-now{font-size:2.5rem;font-weight:500;letter-spacing:-.02em;line-height:1}
+  .price-change{font-size:14px;margin-top:8px;font-weight:500}
+  .price-change.up{color:var(--up)}
+  .price-change.down{color:var(--down)}
+  .as-of{font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:.05em}
+
+  /* BRIEF SLOT */
+  .brief-block{margin-bottom:48px;padding:20px 24px;border-left:2px solid var(--accent);background:var(--surface);font-size:14px;line-height:1.7;color:var(--text)}
+
+  /* SIGNAL CARDS */
+  .signals{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:48px}
+  .signal{background:var(--surface);padding:24px}
+  .signal-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+  .signal-value{font-family:var(--display);font-size:1.75rem;font-weight:400;letter-spacing:-.01em}
+  .signal-value.small{font-size:1.25rem}
+  .signal-meta{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:6px}
+
+  /* SECTIONS */
+  section{margin-bottom:64px}
+  .section-head{display:flex;align-items:baseline;gap:16px;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+  .section-num{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.2em}
+  .section-title{font-family:var(--display);font-style:italic;font-weight:400;font-size:1.5rem}
+  .section-title em{color:var(--accent);font-style:normal}
+
+  /* CHART CARDS */
+  .chart-card{background:var(--surface);border:1px solid var(--border);padding:20px;margin-bottom:16px}
+  .chart-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:900px){.chart-grid-2{grid-template-columns:1fr}}
+
+  /* SLOT (LLM 자리) */
+  .slot{font-size:13px;color:var(--muted);font-style:italic;margin-top:12px;padding:10px 14px;border-left:1px dashed var(--border)}
+  .slot-row{font-size:11px;color:var(--muted);font-family:var(--mono)}
+
+  /* DISCLOSURE TABLE */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);padding:12px 8px;border-bottom:1px solid var(--border);font-weight:500}
+  td{padding:14px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+  tr:hover td{background:var(--surface-2)}
+  .cat-tag{display:inline-block;font-family:var(--mono);font-size:10px;padding:3px 8px;border:1px solid var(--accent);color:var(--accent);letter-spacing:.05em}
+  .cat-tag.실적{border-color:var(--up);color:var(--up)}
+  .cat-tag.수주{border-color:var(--accent);color:var(--accent)}
+  .cat-tag.지분,.cat-tag.자기주식{border-color:var(--accent-soft);color:var(--accent-soft)}
+  .cat-tag.배당{border-color:var(--accent);color:var(--accent)}
+  .cat-tag.증자{border-color:var(--down);color:var(--down)}
+  .cat-tag.기타{border-color:var(--muted);color:var(--muted)}
+  td a{color:var(--text);text-decoration:none;border-bottom:1px dotted var(--muted)}
+  td a:hover{color:var(--accent);border-color:var(--accent)}
+  .empty{color:var(--muted);font-style:italic;padding:24px;text-align:center}
+
+  /* PEER TABLE */
+  .peer-table td{font-family:var(--mono)}
+  .peer-table .target{background:rgba(212,165,116,.06)}
+  .peer-table .target td:first-child{border-left:2px solid var(--accent)}
+
+  /* MACRO CARDS */
+  .macro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:16px}
+  .macro-card{background:var(--surface);border:1px solid var(--border);padding:20px}
+  .macro-name{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+  .macro-value{font-family:var(--display);font-size:1.5rem;color:var(--text)}
+  .macro-delta{font-family:var(--mono);font-size:11px;margin-top:4px}
+  .macro-delta.up{color:var(--up)}
+  .macro-delta.down{color:var(--down)}
+
+  /* FOOTER */
+  footer{margin-top:96px;padding-top:32px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  .sources{line-height:1.8}
+  .sources a{color:var(--muted);text-decoration:underline;text-decoration-color:var(--border)}
+  .sources a:hover{color:var(--accent)}
+  .disclaimer{max-width:480px;text-align:right;font-style:italic}
+  .validation{margin-top:24px;padding:16px;border:1px dashed var(--border);font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .validation.fail{border-color:var(--up);color:var(--up)}
+  .validation.pass{border-color:var(--accent);color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div>
+      <div class="brand">Daily Equity Brief · No.{{ as_of_compact }}</div>
+      <h1>{{ name }}<br><em>{{ as_of }}</em></h1>
+      <div class="ticker">{{ ticker }} · {{ market }}{% if sector_name %} · {{ sector_name }}{% endif %}</div>
+    </div>
+
+    <div class="price-block">
+      <div class="price-now">{% if header.price_now is not none %}{{ "{:,}".format(header.price_now) }}{% else %}—{% endif %}</div>
+      <div class="price-change {{ header.direction }}">
+        {% if header.change_pct is not none %}{{ "{:+.2f}".format(header.change_pct) }}%{% else %}—{% endif %}
+      </div>
+      <div class="as-of">as of {{ as_of }}</div>
+    </div>
+
+  </header>
+
+  <!-- BRIEF SLOT -->
+  <div class="brief-block">
+    <div data-llm-slot="brief" data-noverify="false">{{ slots.brief }}</div>
+  </div>
+
+  <!-- SIGNAL CARDS -->
+  <div class="signals">
+    <div class="signal">
+      <div class="signal-label">Trend · MA</div>
+      <div class="signal-value">{{ signals.trend_ma }}</div>
+      <div class="signal-meta">5일선 vs 20일선</div>
+    </div>
+    <div class="signal">
+      <div class="signal-label">Momentum · RSI(14)</div>
+      <div class="signal-value">{% if signals.rsi is not none %}{{ signals.rsi }}{% else %}—{% endif %}</div>
+      <div class="signal-meta">{{ signals.rsi_label }}</div>
+    </div>
+    <div class="signal">
+      <div class="signal-label">MACD</div>
+      <div class="signal-value small">{{ signals.macd_dir }}</div>
+      <div class="signal-meta">방향성</div>
+    </div>
+    <div class="signal">
+      <div class="signal-label">Bollinger</div>
+      <div class="signal-value small">{{ signals.bollinger }}</div>
+      <div class="signal-meta">±2σ band</div>
+    </div>
+    <div class="signal">
+      <div class="signal-label">52W Position</div>
+      <div class="signal-value">{% if signals.week52_pos is not none %}{{ signals.week52_pos }}%{% else %}—{% endif %}</div>
+      <div class="signal-meta">52주 저~고 사이</div>
+    </div>
+    <div class="signal">
+      <div class="signal-label">Disclosures · 30D</div>
+      <div class="signal-value">{{ disclosures | length }}</div>
+      <div class="signal-meta">건 (DART)</div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: 시세·거래대금 -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">01 / FIVE</div>
+      <h2 class="section-title">시세와 <em>거래</em></h2>
+    </div>
+
+    <div class="chart-card" data-noverify="true">
+      {{ chart_price | safe }}
+    </div>
+    <div class="slot" data-llm-slot="s1_price" data-noverify="false">{{ slots.s1_price }}</div>
+  </section>
+
+  <!-- SECTION 1.5: 외국인/기관/개인 누적 수급 -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">02 / FIVE</div>
+      <h2 class="section-title">외국인·기관 <em>수급</em></h2>
+    </div>
+
+    <div class="chart-card" data-noverify="true">
+      {{ chart_flow | safe }}
+    </div>
+  </section>
+
+  <!-- SECTION 2: 기술지표 -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">03 / FIVE</div>
+      <h2 class="section-title">기술적 <em>지표</em></h2>
+    </div>
+
+    <div class="signals" style="margin-bottom:16px">
+      <div class="signal">
+        <div class="signal-label">RSI</div>
+        <div class="signal-value">{% if signals.rsi is not none %}{{ signals.rsi }}{% else %}—{% endif %}</div>
+        <div class="signal-meta">{{ signals.rsi_label }}</div>
+      </div>
+      <div class="signal">
+        <div class="signal-label">MACD</div>
+        <div class="signal-value small">{{ signals.macd_dir }}</div>
+        <div class="signal-meta">12-26-9</div>
+      </div>
+      <div class="signal">
+        <div class="signal-label">Bollinger</div>
+        <div class="signal-value small">{{ signals.bollinger }}</div>
+        <div class="signal-meta">20일 ±2σ</div>
+      </div>
+    </div>
+    <div class="slot" data-llm-slot="s2_tech" data-noverify="false">{{ slots.s2_tech }}</div>
+  </section>
+
+  <!-- SECTION 3: 공시 -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">04 / FIVE</div>
+      <h2 class="section-title">공시와 <em>이벤트</em> · 최근 30일</h2>
+    </div>
+
+    <div class="chart-card" style="padding:0">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:110px">접수일</th>
+            <th style="width:100px">분류</th>
+            <th>제목</th>
+            <th style="width:200px">메모</th>
+            <th style="width:80px">원문</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% if disclosures %}
+          {% for d in disclosures %}
+          <tr>
+            <td style="font-family:var(--mono);color:var(--muted)">{{ d.rcept_dt }}</td>
+            <td><span class="cat-tag {{ d.category }}">{{ d.category }}</span></td>
+            <td>{{ d.title }}</td>
+            <td>
+              <span class="slot-row" data-llm-slot="s3_disc_{{ loop.index0 }}" data-noverify="false">{{ d.fallback_text }}</span>
+            </td>
+            <td>{% if d.dart_url %}<a href="{{ d.dart_url }}" target="_blank" rel="noopener">DART ↗</a>{% else %}—{% endif %}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="5" class="empty">최근 30일 공시 없음</td></tr>
+        {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECTION 3.5: 재무제표 -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">05 / FIVE</div>
+      <h2 class="section-title">분기별 <em>실적</em></h2>
+    </div>
+
+    <div class="chart-card" data-noverify="true">
+      {{ chart_financials | safe }}
+    </div>
+  </section>
+
+  <!-- SECTION 4: 피어 비교 -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">06 / FIVE</div>
+      <h2 class="section-title">{% if sector_name %}{{ sector_name }} <em>경쟁사</em>{% else %}피어 <em>비교</em>{% endif %}</h2>
+    </div>
+
+    <div class="chart-card" data-noverify="true">
+      {{ chart_peer | safe }}
+    </div>
+
+    <div class="chart-card" style="padding:0">
+      <table class="peer-table">
+        <thead>
+          <tr>
+            <th>종목</th>
+            <th>코드</th>
+            <th style="text-align:right">종가</th>
+            <th style="text-align:right">전일대비</th>
+            <th style="text-align:right">거래량</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for row in peer_rows %}
+          <tr class="{% if row.ticker == ticker %}target{% endif %}">
+            <td>{{ row.name or row.ticker }}</td>
+            <td>{{ row.ticker }}</td>
+            <td style="text-align:right">{% if row.close is not none %}{{ "{:,}".format(row.close) }}{% else %}—{% endif %}</td>
+            <td style="text-align:right" class="{{ row.direction }}">
+              {% if row.change_pct is not none %}{{ "{:+.2f}".format(row.change_pct) }}%{% else %}—{% endif %}
+            </td>
+            <td style="text-align:right">{% if row.volume is not none %}{{ "{:,}".format(row.volume) }}{% else %}—{% endif %}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="slot" data-llm-slot="s4_peer" data-noverify="false">{{ slots.s4_peer }}</div>
+    {% if peer_note %}<div class="slot-row" style="margin-top:8px">⚠ {{ peer_note }}</div>{% endif %}
+  </section>
+
+  <!-- SECTION 5: 거시 -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">07 / FIVE</div>
+      <h2 class="section-title">거시 <em>지표</em></h2>
+    </div>
+
+    {% if macro_cards %}
+    <div class="macro-grid">
+      {% for m in macro_cards %}
+      <div class="macro-card">
+        <div class="macro-name">{{ m.name }}</div>
+        <div class="macro-value">{% if m.value is not none %}{{ "{:,.2f}".format(m.value) }}{% else %}—{% endif %}</div>
+        <div class="macro-delta {{ m.direction }}">{% if m.delta is not none %}{{ "{:+.2f}".format(m.delta) }}% (5거래일){% else %}—{% endif %}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if chart_macro %}
+    <div class="chart-card" data-noverify="true">
+      {{ chart_macro | safe }}
+    </div>
+    {% endif %}
+
+    <div class="slot" data-llm-slot="s4_macro" data-noverify="false">{{ slots.s4_macro }}</div>
+    {% if macro_skipped %}
+      <div class="slot-row" style="margin-top:8px">⚠ 미수집 거시 시리즈: {{ macro_skipped | join(", ") }}</div>
+    {% endif %}
+  </section>
+
+  <!-- VALIDATION -->
+  {% if validation %}
+  <div class="validation {{ validation.css_class }}" data-noverify="true">
+    환각 검증: HTML 내 숫자 {{ validation.checked }}개 중 {{ validation.matched }}개 raw 데이터에 일치
+    {% if validation.unmatched %} · 미일치: {{ validation.unmatched }}개{% if validation.examples %} ({{ validation.examples | join(", ") }} …){% endif %}{% endif %}
+    {% if validation.note %} · {{ validation.note }}{% endif %}
+  </div>
+  {% else %}
+  <div class="validation" data-noverify="true">환각 검증: 보류</div>
+  {% endif %}
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="sources">
+      <strong style="color:var(--text)">Sources</strong><br>
+      {{ sources_text }}<br>
+      Generated {{ generated_at }} KST<br>
+      <a href="https://opendart.fss.or.kr" target="_blank">DART OpenAPI ↗</a> · <a href="https://openapi.krx.co.kr" target="_blank">KRX OpenAPI ↗</a>
+    </div>
+    <div class="disclaimer">
+      {{ disclaimer_ko }}<br>
+      {{ disclaimer_en }}<br>
+      All numbers are auto-extracted from primary sources.
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
