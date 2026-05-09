@@ -100,6 +100,16 @@
   .val-value.na{color:var(--muted);font-size:.95rem;font-style:italic}
   .val-period{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:4px}
 
+  /* TP CONSENSUS (헤더 아래) */
+  .tp-consensus{background:var(--surface);border:1px solid var(--border);padding:18px 22px;margin-bottom:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;align-items:center}
+  @media (max-width:760px){.tp-consensus{grid-template-columns:repeat(2,1fr)}}
+  .tp-cell .tp-label{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+  .tp-cell .tp-val{font-family:var(--display);font-size:1.4rem;color:var(--text)}
+  .tp-cell .tp-val.up{color:var(--up)}
+  .tp-cell .tp-val.down{color:var(--down)}
+  .tp-cell .tp-sub{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px}
+  .tp-empty{font-style:italic;color:var(--muted);font-size:12px;padding:14px 22px;border:1px dashed var(--border);margin-bottom:24px}
+
   /* FOOTER */
   footer{margin-top:96px;padding-top:32px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
   .sources{line-height:1.8}
@@ -135,6 +145,34 @@
     </div>
 
   </header>
+
+  <!-- TP CONSENSUS -->
+  {% if tp_consensus and tp_consensus.tp_avg %}
+  <div class="tp-consensus">
+    <div class="tp-cell">
+      <div class="tp-label">애널리스트 평균 TP</div>
+      <div class="tp-val">{{ "{:,.0f}".format(tp_consensus.tp_avg) }}원</div>
+      {% if tp_consensus.create_date %}<div class="tp-sub" data-noverify="true">컨센서스 {{ tp_consensus.create_date }}</div>{% endif %}
+    </div>
+    <div class="tp-cell">
+      <div class="tp-label">현재가 대비 Upside</div>
+      <div class="tp-val {% if tp_consensus.upside_pct and tp_consensus.upside_pct > 0 %}up{% elif tp_consensus.upside_pct and tp_consensus.upside_pct < 0 %}down{% endif %}">
+        {% if tp_consensus.upside_pct is not none %}{{ "{:+.2f}".format(tp_consensus.upside_pct) }}%{% else %}—{% endif %}
+      </div>
+    </div>
+    <div class="tp-cell">
+      <div class="tp-label">투자의견 평균</div>
+      <div class="tp-val">{% if tp_consensus.opinion_mean is not none %}{{ "%.2f" | format(tp_consensus.opinion_mean) }}{% else %}—{% endif %}</div>
+      <div class="tp-sub" data-noverify="true">{{ tp_consensus.opinion_label or "—" }} (1=매도 ~ 5=매수)</div>
+    </div>
+    <div class="tp-cell">
+      <div class="tp-label">출처</div>
+      <div class="tp-sub" data-noverify="true">네이버 finance · m.stock.naver.com</div>
+    </div>
+  </div>
+  {% else %}
+  <div class="tp-empty" data-noverify="true">애널리스트 컨센서스 데이터 없음 (소형주·미커버 종목 가능성).</div>
+  {% endif %}
 
   <!-- BRIEF SLOT -->
   <div class="brief-block">

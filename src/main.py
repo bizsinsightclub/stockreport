@@ -50,6 +50,7 @@ from src.meta import peers as peers_module
 from src.meta import ticker as ticker_module
 from src.renderer import charts as chart_builder
 from src.renderer import html as html_renderer
+from src.scrapers import tp_consensus as tp_module
 from src.validators import citations as citations_validator
 from src.validators import numbers as numbers_validator
 
@@ -392,6 +393,14 @@ def build(args: CliArgs) -> Path:
     fund_meta = _safe_fetch_fundamental(args.ticker, todate)
     _save_raw(fund_meta, raw_dir, args.ticker, "fundamental")
 
+    # TP 컨센서스 (네이버 finance 모바일 API)
+    try:
+        tp_meta = tp_module.fetch_tp_consensus(args.ticker)
+        _save_raw(tp_meta, raw_dir, args.ticker, "tp_consensus")
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("%s TP 컨센서스 fetch 실패: %s", args.ticker, exc)
+        tp_meta = None
+
     # 3. 피어
     peer_note = ""
     if args.peers:
@@ -456,6 +465,14 @@ def build(args: CliArgs) -> Path:
         (fin_meta or {}).get("data", []),
         (fund_meta or {}).get("data", {}),
     )
+
+    # TP 컨센서스 — current_price 기반 upside 계산
+    tp_data: dict[str, Any] = dict((tp_meta or {}).get("data", {}) or {})
+    cur_price = header.get("price_now")
+    if tp_data.get("tp_avg") and cur_price:
+        tp_avg_v = float(tp_data["tp_avg"])
+        tp_data["upside_pct"] = round((tp_avg_v - float(cur_price)) / float(cur_price) * 100.0, 2)
+        tp_data["current_price"] = float(cur_price)
 
     normalized_peer = peer_analyzer.normalized_frame(
         args.ticker,
@@ -548,6 +565,7 @@ def build(args: CliArgs) -> Path:
         "macro_cards": macro_cards,
         "macro_skipped": macro_skipped,
         "valuation": valuation,
+        "tp_consensus": tp_data,
         "chart_price": chart_price,
         "chart_flow": chart_flow,
         "chart_peer": chart_peer,
@@ -596,6 +614,7 @@ def build(args: CliArgs) -> Path:
         "macro_cards": macro_cards,
         "flow_summary": flow_summary,
         "valuation": valuation,
+        "tp_consensus": tp_data,
     }
     _save_raw(
         {
