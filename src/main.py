@@ -100,6 +100,22 @@ def _safe_fetch_flow(ticker: str, fromdate: str, todate: str) -> dict[str, Any] 
         return None
 
 
+def _safe_fetch_fundamental(ticker: str, today_yyyymmdd: str) -> dict[str, Any] | None:
+    """pykrx 시장 fundamental — KRX_ID/PW 미설정 시 noop."""
+    if not (os.environ.get("KRX_ID") and os.environ.get("KRX_PW")):
+        return {
+            "data": {},
+            "source": "noop:fundamental",
+            "tool_args": {"ticker": ticker, "date": today_yyyymmdd},
+            "fetched_at": _now_iso_utc(),
+        }
+    try:
+        return pykrx_price.fetch_market_fundamental(ticker, today_yyyymmdd)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("%s fundamental fetch 실패: %s", ticker, exc)
+        return None
+
+
 def _safe_fetch_disclosures(ticker: str, fromdate: str, todate: str) -> dict[str, Any] | None:
     """DART list.json 으로 공시 수집. corp_code 자동 매핑."""
     if not os.environ.get("DART_API_KEY"):
@@ -373,6 +389,9 @@ def build(args: CliArgs) -> Path:
     fin_meta = _safe_fetch_financials(args.ticker, report_date)
     _save_raw(fin_meta, raw_dir, args.ticker, "financials")
 
+    fund_meta = _safe_fetch_fundamental(args.ticker, todate)
+    _save_raw(fund_meta, raw_dir, args.ticker, "fundamental")
+
     # 3. 피어
     peer_note = ""
     if args.peers:
@@ -431,6 +450,12 @@ def build(args: CliArgs) -> Path:
     # DART 재무 row 는 account_nm/thstrm_amount 형태 → analyzer 입력 (period/매출액/...) 으로 변환
     fin_records = _normalize_financial_records((fin_meta or {}).get("data", []))
     fin_df = financials_analyzer.normalize(fin_records)
+
+    # Valuation 6 지표 (PER/PBR/EPS/BPS + ROE/부채비율)
+    valuation = financials_analyzer.valuation_metrics(
+        (fin_meta or {}).get("data", []),
+        (fund_meta or {}).get("data", {}),
+    )
 
     normalized_peer = peer_analyzer.normalized_frame(
         args.ticker,
@@ -522,6 +547,7 @@ def build(args: CliArgs) -> Path:
         "peer_note": peer_note,
         "macro_cards": macro_cards,
         "macro_skipped": macro_skipped,
+        "valuation": valuation,
         "chart_price": chart_price,
         "chart_flow": chart_flow,
         "chart_peer": chart_peer,
@@ -569,6 +595,7 @@ def build(args: CliArgs) -> Path:
         "peer_rows": peer_rows,
         "macro_cards": macro_cards,
         "flow_summary": flow_summary,
+        "valuation": valuation,
     }
     _save_raw(
         {

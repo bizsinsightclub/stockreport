@@ -76,6 +76,29 @@ def fetch_investor_flow(ticker: str, fromdate: str, todate: str) -> dict[str, An
     )
 
 
+def fetch_market_fundamental(ticker: str, today_yyyymmdd: str) -> dict[str, Any]:
+    """pykrx ``get_market_fundamental_by_date`` — BPS/PER/PBR/EPS/DIV/DPS.
+
+    KRX_ID/KRX_PW 인증 필요. 적자 종목은 PER/EPS 가 0 으로 반환됨.
+    """
+    from pykrx import stock  # type: ignore
+
+    df = stock.get_market_fundamental_by_date(today_yyyymmdd, today_yyyymmdd, ticker)
+    payload: dict[str, Any] = {}
+    if df is not None and len(df) > 0:
+        row = df.iloc[0]
+        for key in ("BPS", "PER", "PBR", "EPS", "DIV", "DPS"):
+            try:
+                payload[key] = float(row.get(key, 0) or 0)
+            except (ValueError, TypeError):
+                payload[key] = None
+    return _wrap(
+        payload,
+        "pykrx:get_market_fundamental_by_date",
+        {"ticker": ticker, "date": today_yyyymmdd},
+    )
+
+
 def fetch_market_cap_today(today_yyyymmdd: str, market: str = "ALL") -> dict[str, Any]:
     """전 종목 시가총액 스냅샷."""
     from pykrx import stock  # type: ignore

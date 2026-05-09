@@ -91,6 +91,15 @@
   .macro-delta.up{color:var(--up)}
   .macro-delta.down{color:var(--down)}
 
+  /* VALUATION CARDS (§5 위) */
+  .val-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px}
+  @media (max-width:760px){.val-grid{grid-template-columns:repeat(3,1fr)}}
+  .val-card{background:var(--surface);border:1px solid var(--border);padding:14px 16px}
+  .val-name{font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+  .val-value{font-family:var(--display);font-size:1.15rem;color:var(--text)}
+  .val-value.na{color:var(--muted);font-size:.95rem;font-style:italic}
+  .val-period{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:4px}
+
   /* FOOTER */
   footer{margin-top:96px;padding-top:32px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
   .sources{line-height:1.8}
@@ -261,8 +270,39 @@
   <section>
     <div class="section-head">
       <div class="section-num">05 / FIVE</div>
-      <h2 class="section-title">분기별 <em>실적</em></h2>
+      <h2 class="section-title">분기별 <em>실적</em> · Valuation</h2>
     </div>
+
+    {% if valuation %}
+    <div class="val-grid">
+      <div class="val-card">
+        <div class="val-name">PER</div>
+        <div class="val-value {% if valuation.per is none %}na{% endif %}">{% if valuation.per %}{{ "%.2f" | format(valuation.per) }}{% else %}N/A{% endif %}</div>
+      </div>
+      <div class="val-card">
+        <div class="val-name">PBR</div>
+        <div class="val-value {% if valuation.pbr is none %}na{% endif %}">{% if valuation.pbr %}{{ "%.2f" | format(valuation.pbr) }}{% else %}N/A{% endif %}</div>
+      </div>
+      <div class="val-card">
+        <div class="val-name">EPS</div>
+        <div class="val-value {% if valuation.eps is none %}na{% endif %}">{% if valuation.eps %}{{ "{:,.0f}".format(valuation.eps) }}원{% else %}N/A{% endif %}</div>
+      </div>
+      <div class="val-card">
+        <div class="val-name">BPS</div>
+        <div class="val-value {% if valuation.bps is none %}na{% endif %}">{% if valuation.bps %}{{ "{:,.0f}".format(valuation.bps) }}원{% else %}N/A{% endif %}</div>
+      </div>
+      <div class="val-card">
+        <div class="val-name">ROE</div>
+        <div class="val-value {% if valuation.roe is none %}na{% endif %}">{% if valuation.roe is not none %}{{ "%.2f" | format(valuation.roe) }}%{% else %}N/A{% endif %}</div>
+        {% if valuation.as_of_period %}<div class="val-period" data-noverify="true">{{ valuation.as_of_period }}</div>{% endif %}
+      </div>
+      <div class="val-card">
+        <div class="val-name">부채비율</div>
+        <div class="val-value {% if valuation.debt_ratio is none %}na{% endif %}">{% if valuation.debt_ratio is not none %}{{ "%.2f" | format(valuation.debt_ratio) }}%{% else %}N/A{% endif %}</div>
+        {% if valuation.as_of_period %}<div class="val-period" data-noverify="true">{{ valuation.as_of_period }}</div>{% endif %}
+      </div>
+    </div>
+    {% endif %}
 
     <div class="chart-card" data-noverify="true">
       {{ chart_financials | safe }}
