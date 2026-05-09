@@ -27,6 +27,12 @@ data/output/_market_overview_cache.json
 *.log
 logs/
 
+# Playwright MCP 캐시 (스크린샷 작업 중 생성)
+.playwright-mcp/
+
+# IDE 워크스페이스
+*.code-workspace
+
 # OMC / Claude Code 세션 상태
 .omc/
 # .claude 안에서 commands/ 만 push, 나머지(state/, settings 등)는 무시
