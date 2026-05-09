@@ -51,6 +51,82 @@
         {"token": "1,466.78", "file": "329180_enriched.json", "path": "data.macro_cards.0.value", "value": 1466.78},
         {"token": "-0.69%", "file": "329180_enriched.json", "path": "data.macro_cards.0.delta", "value": -0.69}
       ]
+    },
+    "lens": {
+      "s2_tech": {
+        "beg_1d": {
+          "raw_text": "어제 주가가 -5.05% 떨어졌습니다. 외국인이 하루에 -661.6억원 어치를 한꺼번에 팔면서 가격이 무거워진 영향이 가장 큽니다. RSI 61.2 는 '약간 들떠 있다' 는 신호인데, 한 번 식혀가는 단계로 보시면 됩니다.",
+          "citations": [
+            {"token": "-5.05%", "file": "329180_enriched.json", "path": "data.header.change_pct", "value": -5.05},
+            {"token": "-661.6", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -661.6},
+            {"token": "61.2", "file": "329180_enriched.json", "path": "data.signals.rsi", "value": 61.2}
+          ]
+        },
+        "beg_3d": {
+          "raw_text": "최근 3일은 하루 빠지고 하루 오르고 다시 빠지는 출렁이는 흐름이었습니다. 5거래일을 합치면 외국인이 -1,188.9억원 팔았지만, 개인 투자자가 +1,167.2억원 사주면서 큰 폭락은 막아낸 모양새입니다.",
+          "citations": [
+            {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9},
+            {"token": "+1,167.2", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_5d_oku", "value": 1167.2}
+          ]
+        },
+        "beg_1w": {
+          "raw_text": "이번 주는 1년 중 가장 높은 가격대 (52주 위치 86.2%) 에서 한 번 쉬어가는 차익실현 주간이었습니다. 위쪽으로 너무 빠르게 올라온 만큼 잠깐 숨고르기를 한다고 이해하면 좋습니다.",
+          "citations": [
+            {"token": "86.2", "file": "329180_enriched.json", "path": "data.signals.week52_pos", "value": 86.2}
+          ]
+        },
+        "int_1d": {
+          "raw_text": "5/8 종가 658,000원, 직전일 대비 -5.05% 로 단일일 변동성 확대. 외국인 단일일 -661.6억원 매도 유입이 가격 하락 주요 동인이며, RSI(14) 61.2 는 직전 70 부근 고점에서 회귀 중인 단기 과열 해소 신호입니다.",
+          "citations": [
+            {"token": "658,000", "file": "329180_enriched.json", "path": "data.header.price_now", "value": 658000},
+            {"token": "-5.05%", "file": "329180_enriched.json", "path": "data.header.change_pct", "value": -5.05},
+            {"token": "-661.6", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -661.6},
+            {"token": "61.2", "file": "329180_enriched.json", "path": "data.signals.rsi", "value": 61.2}
+          ]
+        },
+        "int_3d": {
+          "raw_text": "직전 3거래일 외국인 매도가 누적되며 가격 변동성이 확대된 흐름. 5거래일 누적 외국인 -1,188.9억원이 매도 압력의 크기를 보여주지만, MA5>MA20 골든 구조와 MACD 상승 방향성은 유지되어 중장기 추세 훼손은 미확인입니다.",
+          "citations": [
+            {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9}
+          ]
+        },
+        "int_1w": {
+          "raw_text": "이번 주는 52주 위치 86.2% 의 신고가권에서 차익실현이 발생한 한 주. 외국인 5거래일 -1,188.9억원 vs 개인 +1,167.2억원의 명확한 수급 교체가 주간 패턴이며, RSI 가 70 부근에서 61.2 로 회귀한 점은 단기 과열을 풀어내는 건강한 조정 신호로 해석 가능합니다.",
+          "citations": [
+            {"token": "86.2", "file": "329180_enriched.json", "path": "data.signals.week52_pos", "value": 86.2},
+            {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9},
+            {"token": "+1,167.2", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_5d_oku", "value": 1167.2},
+            {"token": "61.2", "file": "329180_enriched.json", "path": "data.signals.rsi", "value": 61.2}
+          ]
+        },
+        "exp_1d": {
+          "raw_text": "5/8 -5.05% 단일일 갭다운 후 종가 658,000원. 외국인 단일일 net -661.6억원, 기관 -599.6억원 동시 매도가 가격 압박을 주도하며 거래대금 4,074.6억원 (60일 평균 대비 +181.8%) 으로 변동성 확대 시그널. RSI(14) 61.2 중립권 회귀 + 골든 구조 유지는 추세 훼손 없는 단기 매물 소화로 평가.",
+          "citations": [
+            {"token": "-5.05%", "file": "329180_enriched.json", "path": "data.header.change_pct", "value": -5.05},
+            {"token": "658,000", "file": "329180_enriched.json", "path": "data.header.price_now", "value": 658000},
+            {"token": "-661.6", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -661.6},
+            {"token": "-599.6", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_last_day_oku", "value": -599.6},
+            {"token": "4,074.6", "file": "329180_enriched.json", "path": "data.volume_metrics.today_traded_oku", "value": 4074.6},
+            {"token": "+181.8%", "file": "329180_enriched.json", "path": "data.volume_metrics.ratio_pct", "value": 181.8},
+            {"token": "61.2", "file": "329180_enriched.json", "path": "data.signals.rsi", "value": 61.2}
+          ]
+        },
+        "exp_3d": {
+          "raw_text": "직전 3거래일 외국인 매도 가속 + 개인 매수 흡수 패턴이 단기 흐름을 지배. 5거래일 누적 외국인 -1,188.9억원의 누적 출회는 상단 저항 강화 시그널로 해석되며, 신규 진입 시 강도 조절 + MA20 지지 여부가 1차 변곡점. MACD 상승 방향성은 유지되나 단기 박스권 하단 재테스트 가능성을 배제하지 않음.",
+          "citations": [
+            {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9}
+          ]
+        },
+        "exp_1w": {
+          "raw_text": "이번 주는 52주 위치 86.2% 신고가권에서의 차익실현 주간 — 외국인 5거래일 -1,188.9억원 vs 개인 +1,167.2억원 수급 교체 + 회전율 0.59% (신고가권 평균 수준) 구도. 매집 관점 트리거는 RSI 50 후반대 안착 + 외국인 매도 둔화 시점이며, 차익실현 트리거는 RSI 70 재도전 실패 + 신고가 갱신 무산.",
+          "citations": [
+            {"token": "86.2", "file": "329180_enriched.json", "path": "data.signals.week52_pos", "value": 86.2},
+            {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9},
+            {"token": "+1,167.2", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_5d_oku", "value": 1167.2},
+            {"token": "0.59", "file": "329180_enriched.json", "path": "data.volume_metrics.turnover_pct", "value": 0.59}
+          ]
+        }
+      }
     }
   }
 }
