@@ -1,12 +1,12 @@
 {
-  "cite_total": 0,
-  "cite_matched": 0,
+  "cite_total": 52,
+  "cite_matched": 52,
   "uncited": 0,
-  "checked": 0,
-  "matched": 0,
+  "checked": 52,
+  "matched": 52,
   "unmatched": 0,
   "examples_mismatched": [],
   "examples_uncited": [],
-  "css_class": "pending",
-  "note": "LLM 슬롯 미작성 — citation 검증 보류"
+  "css_class": "pass",
+  "note": ""
 }

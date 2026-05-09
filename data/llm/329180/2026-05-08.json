@@ -67,6 +67,107 @@
       ]
     },
     "lens": {
+      "s15_flow": {
+        "beg_1d": {"raw_text": "어제 외국인이 -661.6억원, 기관이 -599.6억원 어치를 한꺼번에 팔았습니다. 개인 투자자가 +1,227.9억원 사들이며 받쳐줬지만 큰손 두 곳이 동시에 빠지니 가격이 빠질 수밖에 없었어요.", "citations": [
+          {"token": "-661.6", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -661.6},
+          {"token": "-599.6", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_last_day_oku", "value": -599.6},
+          {"token": "+1,227.9", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_last_day_oku", "value": 1227.9}
+        ]},
+        "beg_3d": {"raw_text": "최근 3일은 외국인이 점점 더 많이 파는 흐름입니다. 큰손이 빠진 자리를 개인이 받쳐주고는 있지만 외국인 매도 강도가 더 강해 가격이 흔들렸습니다.", "citations": []},
+        "beg_1w": {"raw_text": "이번 주는 외국인이 -1,188.9억원 팔고 개인이 +1,167.2억원 사면서 거의 1:1 로 맞물린 수급 교체였습니다. 기관은 -11.7억원 정도로 거의 중립이라 외국인-개인 사이의 줄다리기가 가격 변동을 만들었어요.", "citations": [
+          {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9},
+          {"token": "+1,167.2", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_5d_oku", "value": 1167.2},
+          {"token": "-11.7", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_5d_oku", "value": -11.7}
+        ]},
+        "int_1d": {"raw_text": "5/8 외국인 -661.6억원, 기관 -599.6억원 동시 매도 + 개인 +1,227.9억원 매수의 명확한 갈림. 외국인+기관 두 큰손 동시 매도 패턴은 가격 직접 압박 동인입니다.", "citations": [
+          {"token": "-661.6", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -661.6},
+          {"token": "-599.6", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_last_day_oku", "value": -599.6},
+          {"token": "+1,227.9", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_last_day_oku", "value": 1227.9}
+        ]},
+        "int_3d": {"raw_text": "3거래일 외국인 매도 가속 + 기관 변동성 (5거래일 누적 -11.7억원으로 거의 중립). 단기 수급 무게중심은 외국인 매도 강도가 결정합니다.", "citations": [
+          {"token": "-11.7", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_5d_oku", "value": -11.7}
+        ]},
+        "int_1w": {"raw_text": "이번 주 외국인 -1,188.9억원 vs 개인 +1,167.2억원 거의 동일 규모 교체 + 기관 -11.7억원 중립. 외국인 매도 둔화 시점이 1차 매집 검토 영역입니다.", "citations": [
+          {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9},
+          {"token": "+1,167.2", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_5d_oku", "value": 1167.2},
+          {"token": "-11.7", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_5d_oku", "value": -11.7}
+        ]},
+        "exp_1d": {"raw_text": "5/8 단일일 외국인 net -661.6억원, 기관 -599.6억원 동시 매도가 가격 -5.05% 갭다운 동인. 개인 +1,227.9억원 매수 흡수가 하단 지지 형성 — 외국인+기관 vs 개인 수급 갈림 구도.", "citations": [
+          {"token": "-661.6", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -661.6},
+          {"token": "-599.6", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_last_day_oku", "value": -599.6},
+          {"token": "-5.05%", "file": "329180_enriched.json", "path": "data.header.change_pct", "value": -5.05},
+          {"token": "+1,227.9", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_last_day_oku", "value": 1227.9}
+        ]},
+        "exp_3d": {"raw_text": "직전 3거래일 외국인 매도 누적 가속화. 5거래일 누적 -1,188.9억원의 외국인 출회는 상단 저항 강화 시그널. 기관 5거래일 -11.7억원 거의 중립이라 외국인이 매도 주도, 개인 +1,167.2억원 흡수가 박스권 하단 형성.", "citations": [
+          {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9},
+          {"token": "-11.7", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_5d_oku", "value": -11.7},
+          {"token": "+1,167.2", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_5d_oku", "value": 1167.2}
+        ]},
+        "exp_1w": {"raw_text": "주간 외국인 -1,188.9억원 vs 개인 +1,167.2억원 + 기관 -11.7억원 거의 중립 — 외국인-개인 1:1 교체 패턴. 외국인 매도 둔화 + 기관 매수 전환 시점이 매집 트리거이며, 외국인 매도 가속 시 단기 박스권 하단 재테스트 가능성.", "citations": [
+          {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9},
+          {"token": "+1,167.2", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_5d_oku", "value": 1167.2},
+          {"token": "-11.7", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_5d_oku", "value": -11.7}
+        ]}
+      },
+      "s16_volume": {
+        "beg_1d": {"raw_text": "어제 거래량 620,979주는 평소 (60일 평균 398,139주) 대비 활발한 수준이었어요. 사람들이 많이 사고팔면 변동성이 커지고 가격도 더 흔들립니다.", "citations": [
+          {"token": "620,979", "file": "329180_enriched.json", "path": "data.peer_rows.0.volume", "value": 620979},
+          {"token": "398,139", "file": "329180_enriched.json", "path": "data.volume_metrics.avg60_volume", "value": 398139}
+        ]},
+        "beg_3d": {"raw_text": "최근 3일은 거래량이 크게 늘었습니다. 가격이 빠르게 움직일 때 보통 매매가 폭발적으로 늘어납니다.", "citations": []},
+        "beg_1w": {"raw_text": "이번 주 거래대금 4,074.6억원은 60일 평균 2,240.9억원 대비 +181.8% — 활발한 거래주간이었습니다. 회전율 0.59% 는 신고가권에서는 평균 수준이에요.", "citations": [
+          {"token": "4,074.6", "file": "329180_enriched.json", "path": "data.volume_metrics.today_traded_oku", "value": 4074.6},
+          {"token": "2,240.9", "file": "329180_enriched.json", "path": "data.volume_metrics.avg60_traded_oku", "value": 2240.9},
+          {"token": "+181.8%", "file": "329180_enriched.json", "path": "data.volume_metrics.ratio_pct", "value": 181.8},
+          {"token": "0.59", "file": "329180_enriched.json", "path": "data.volume_metrics.turnover_pct", "value": 0.59}
+        ]},
+        "int_1d": {"raw_text": "5/8 거래대금 4,074.6억원 (60일 평균 2,240.9억원 대비 +181.8%), 거래량 620,979주 (60일 평균 398,139주 대비 활발한 수준) — 변동성 확대 + 매물 출회 동시 시그널입니다.", "citations": [
+          {"token": "4,074.6", "file": "329180_enriched.json", "path": "data.volume_metrics.today_traded_oku", "value": 4074.6},
+          {"token": "2,240.9", "file": "329180_enriched.json", "path": "data.volume_metrics.avg60_traded_oku", "value": 2240.9},
+          {"token": "+181.8%", "file": "329180_enriched.json", "path": "data.volume_metrics.ratio_pct", "value": 181.8},
+          {"token": "620,979", "file": "329180_enriched.json", "path": "data.peer_rows.0.volume", "value": 620979},
+          {"token": "398,139", "file": "329180_enriched.json", "path": "data.volume_metrics.avg60_volume", "value": 398139}
+        ]},
+        "int_3d": {"raw_text": "3거래일 거래대금 평균이 60일 평균 대비 +181.8% 수준으로 상승 — 매도 강도와 매수 흡수가 동시에 격해진 변동성 구간. 회전율 0.59% 는 시총 대비 그날의 거래 강도를 보여주는 지표입니다.", "citations": [
+          {"token": "+181.8%", "file": "329180_enriched.json", "path": "data.volume_metrics.ratio_pct", "value": 181.8},
+          {"token": "0.59", "file": "329180_enriched.json", "path": "data.volume_metrics.turnover_pct", "value": 0.59}
+        ]},
+        "int_1w": {"raw_text": "이번 주 거래대금 평균 +181.8% 수준 + 회전율 0.59% — 활성도 매우 높은 한 주. 외국인-개인 수급 교체가 활성도 폭증의 직접 원인입니다.", "citations": [
+          {"token": "+181.8%", "file": "329180_enriched.json", "path": "data.volume_metrics.ratio_pct", "value": 181.8},
+          {"token": "0.59", "file": "329180_enriched.json", "path": "data.volume_metrics.turnover_pct", "value": 0.59}
+        ]},
+        "exp_1d": {"raw_text": "5/8 거래대금 4,074.6억원, 60일 평균 2,240.9억원 대비 +181.8% 폭증. 회전율 0.59% (시총 대비 단일일 거래대금 비율) — 신고가권 평균 수준이나 절대 매물 출회 강도 의미. 거래량 620,979주 vs 60일 평균 398,139주 동반 확대.", "citations": [
+          {"token": "4,074.6", "file": "329180_enriched.json", "path": "data.volume_metrics.today_traded_oku", "value": 4074.6},
+          {"token": "2,240.9", "file": "329180_enriched.json", "path": "data.volume_metrics.avg60_traded_oku", "value": 2240.9},
+          {"token": "+181.8%", "file": "329180_enriched.json", "path": "data.volume_metrics.ratio_pct", "value": 181.8},
+          {"token": "0.59", "file": "329180_enriched.json", "path": "data.volume_metrics.turnover_pct", "value": 0.59},
+          {"token": "620,979", "file": "329180_enriched.json", "path": "data.peer_rows.0.volume", "value": 620979},
+          {"token": "398,139", "file": "329180_enriched.json", "path": "data.volume_metrics.avg60_volume", "value": 398139}
+        ]},
+        "exp_3d": {"raw_text": "직전 3거래일 거래대금 폭증 패턴 — 외국인 매도 + 개인 흡수 교차 효과로 매매 강도가 60일 평균 대비 +181.8% 상회. 회전율 0.59% (시총 대비) 는 신고가권 평균 수준이나 누적 의미 있는 매물 출회.", "citations": [
+          {"token": "+181.8%", "file": "329180_enriched.json", "path": "data.volume_metrics.ratio_pct", "value": 181.8},
+          {"token": "0.59", "file": "329180_enriched.json", "path": "data.volume_metrics.turnover_pct", "value": 0.59}
+        ]},
+        "exp_1w": {"raw_text": "주간 거래활성도 +181.8% (vs 60d avg) + 회전율 0.59% 결합 — 신고가권 차익실현 마찰의 정량 지표. 거래대금 4,074.6억원 vs 60일 평균 2,240.9억원 의 비례 확대는 변동성 구간 진입 신호이며, 매도 강도 둔화 시 활성도 정상화 + 가격 안정화 가능.", "citations": [
+          {"token": "+181.8%", "file": "329180_enriched.json", "path": "data.volume_metrics.ratio_pct", "value": 181.8},
+          {"token": "0.59", "file": "329180_enriched.json", "path": "data.volume_metrics.turnover_pct", "value": 0.59},
+          {"token": "4,074.6", "file": "329180_enriched.json", "path": "data.volume_metrics.today_traded_oku", "value": 4074.6},
+          {"token": "2,240.9", "file": "329180_enriched.json", "path": "data.volume_metrics.avg60_traded_oku", "value": 2240.9}
+        ]}
+      },
+      "s3_disc": {
+        "beg_1d": {"raw_text": "어제 5/8 공급 계약 (수주) 2건이 새로 공시됐어요. 수주는 회사 매출에 도움이 되는 좋은 소식입니다.", "citations": []},
+        "beg_3d": {"raw_text": "최근 3일은 영업실적 발표 (5/7) 와 새 수주 공시 (5/8) 가 나왔어요. 실적은 회사가 얼마나 잘하고 있는지, 수주는 앞으로 매출이 어떻게 될지 보여주는 정보입니다.", "citations": []},
+        "beg_1w": {"raw_text": "지난 한 달 공시 중 수주 (단일판매·공급계약) 가 가장 많아요 — 수주 모멘텀이 강한 회사임을 보여줍니다. 다만 4월 중 안전사고 (중대재해) 공시는 부정 요인으로 모니터링 필요합니다.", "citations": []},
+        "int_1d": {"raw_text": "5/8 단일판매·공급계약 2건 공시. 수주 신규 발표는 매출 가시성 강화 + 향후 실적 추정치 상향 동력으로 작용합니다.", "citations": []},
+        "int_3d": {"raw_text": "3거래일 영업(잠정)실적 공정공시 (5/7 별도+연결) + 수주 1건 (5/8). 실적 공시는 컨센서스 대비 +/- 평가 핵심이며, 수주는 매출 가시성 강화 신호입니다.", "citations": []},
+        "int_1w": {"raw_text": "최근 한 달 공시 중 수주 dominant + 영업실적 다수로 펀더멘털 개선 신호가 강한 한 달. 단 4월 중대재해 발생 공시는 ESG 리스크 측면 모니터링 필요.", "citations": []},
+        "exp_1d": {"raw_text": "5/8 단일판매·공급계약 2건 (자율공시 + 정기공시). 단일판매·공급계약은 일반적으로 매출의 일정 비율 이상이거나 결정적 거래일 때 공시되며, 수주 잔고 증가 모멘텀 시그널 — 컨센서스 대비 수주 잔고 평가 필요합니다.", "citations": []},
+        "exp_3d": {"raw_text": "직전 3거래일 영업(잠정)실적 공시 (5/7 별도+연결) + 수주 1건. 실적 공시 발표가 5/7 양봉 반등 후 5/8 -5.05% 갭다운의 변곡점일 가능성 — 시장이 실적을 기대 부합 vs 미달로 해석 갈림.", "citations": [
+          {"token": "-5.05%", "file": "329180_enriched.json", "path": "data.header.change_pct", "value": -5.05}
+        ]},
+        "exp_1w": {"raw_text": "최근 한 달 공시 mix: 수주 dominance + 실적 + IR + 생산중단 + 중대재해. 수주 모멘텀 vs 중대재해 ESG 리스크 mix — 매수 검토 시 수주 잔고 + 사업 부문별 매출 mix + ESG 후속 조치 공시 정밀 평가 필요합니다.", "citations": []}
+      },
       "s1_price": {
         "beg_1d": {"raw_text": "5/8 종가 658,000원으로 -5.05% 큰 폭 조정. 거래량 620,979주로 평소보다 활발한 매매가 일어나면서 가격 변동성도 함께 커졌습니다.", "citations": [
           {"token": "658,000", "file": "329180_enriched.json", "path": "data.header.price_now", "value": 658000},
