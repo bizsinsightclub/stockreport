@@ -124,6 +124,58 @@ def fetch_market_cap_single(ticker: str, today_yyyymmdd: str) -> dict[str, Any]:
     )
 
 
+def fetch_etf_market(today_yyyymmdd: str) -> dict[str, Any]:
+    """pykrx ``get_etf_ohlcv_by_ticker`` — 시장 전체 ETF 단일일자.
+
+    KRX OpenAPI ``etp/etf_bydd_trd`` 가 미승인일 때의 fallback. 컬럼:
+    NAV / 시가 / 고가 / 저가 / 종가 / 거래량 / 거래대금 / 기초지수.
+
+    상장좌수·시가총액은 별도 ``get_market_cap_by_ticker`` 결합 필요.
+    """
+    from pykrx import stock  # type: ignore
+
+    rows: list[dict[str, Any]] = []
+    try:
+        df = stock.get_etf_ohlcv_by_ticker(today_yyyymmdd)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("ETF 시장 fetch 실패: %s", exc)
+        return _wrap([], "pykrx:get_etf_ohlcv_by_ticker", {"date": today_yyyymmdd})
+
+    if df is None or len(df) == 0:
+        return _wrap([], "pykrx:get_etf_ohlcv_by_ticker", {"date": today_yyyymmdd})
+
+    # 시총·상장좌수 맵 — 별도 호출
+    cap_map: dict[str, dict[str, Any]] = {}
+    try:
+        cap_df = stock.get_market_cap_by_ticker(today_yyyymmdd, market="ALL")
+        for tk, row in cap_df.iterrows():
+            cap_map[str(tk)] = {
+                "시가총액": row.get("시가총액"),
+                "상장주식수": row.get("상장주식수"),
+            }
+    except Exception:  # noqa: BLE001
+        cap_map = {}
+
+    for tk, row in df.iterrows():
+        item: dict[str, Any] = {"ISU_CD": str(tk)}
+        try:
+            item["ISU_NM"] = stock.get_etf_ticker_name(str(tk))
+        except Exception:  # noqa: BLE001
+            item["ISU_NM"] = ""
+        for col in df.columns:
+            v = row.get(col)
+            try:
+                item[str(col)] = float(v) if v is not None else None
+            except (ValueError, TypeError):
+                item[str(col)] = v
+        cap = cap_map.get(str(tk), {})
+        item["MKTCAP"] = float(cap.get("시가총액") or 0) if cap.get("시가총액") is not None else None
+        item["LIST_SHRS"] = float(cap.get("상장주식수") or 0) if cap.get("상장주식수") is not None else None
+        rows.append(item)
+
+    return _wrap(rows, "pykrx:get_etf_ohlcv_by_ticker", {"date": today_yyyymmdd})
+
+
 def fetch_market_cap_today(today_yyyymmdd: str, market: str = "ALL") -> dict[str, Any]:
     """전 종목 시가총액 스냅샷."""
     from pykrx import stock  # type: ignore

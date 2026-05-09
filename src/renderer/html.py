@@ -6,6 +6,7 @@ analyzer 결과 + meta 정보가 ``ctx`` dict 로 들어와 HTML 문자열을 �
 
 from __future__ import annotations
 
+import json
 import logging
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -69,8 +70,17 @@ def update_ticker_index(ticker: str, *, output_dir: Path = OUTPUT_DIR) -> Path:
     return out
 
 
-def update_root_index(*, output_dir: Path = OUTPUT_DIR) -> Path:
-    """``data/output/index.html`` 갱신."""
+def update_root_index(
+    *,
+    output_dir: Path = OUTPUT_DIR,
+    market_overview: dict[str, Any] | None = None,
+) -> Path:
+    """``data/output/index.html`` 갱신.
+
+    ``market_overview`` 가 주어지면 ETF/ETN/ELW 시장 섹션도 함께 렌더 (--market 모드).
+    None 이면 직전 캐시 (``_market_overview_cache.json``) 가 있으면 재사용 — 개별
+    ticker 빌드가 root index 를 덮어쓸 때 시장 섹션이 사라지지 않도록.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     tickers = []
     for child in sorted(output_dir.iterdir()):
@@ -93,10 +103,25 @@ def update_root_index(*, output_dir: Path = OUTPUT_DIR) -> Path:
             }
         )
 
+    cache_path = output_dir / "_market_overview_cache.json"
+    if market_overview is not None:
+        try:
+            cache_path.write_text(
+                json.dumps(market_overview, ensure_ascii=False), encoding="utf-8"
+            )
+        except OSError:
+            pass
+    elif cache_path.exists():
+        try:
+            market_overview = json.loads(cache_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            market_overview = None
+
     env = _env()
     template = env.get_template("root_index.html.j2")
     html = template.render(
         tickers=tickers,
+        market_overview=market_overview,
         generated_at=datetime.now(_KST).strftime("%Y-%m-%d %H:%M KST"),
     )
     out = output_dir / "index.html"

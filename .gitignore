@@ -20,6 +20,8 @@ data/cache/
 
 # 검증 사이드카는 push 안 함
 data/output/**/*.validation.json
+# 시장 데이터 캐시 (root index render 시 자동 재생성)
+data/output/_market_overview_cache.json
 
 # 로그
 *.log

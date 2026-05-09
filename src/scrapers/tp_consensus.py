@@ -1,13 +1,15 @@
-"""애널리스트 목표주가 (TP) 컨센서스.
+"""애널리스트 목표주가 (TP) 컨센서스 — 인터페이스 + 비활성 default.
 
-기본 구현: 네이버 finance 모바일 JSON API (``m.stock.naver.com``).
-``consensusInfo`` 필드에 ``priceTargetMean`` (평균 TP) / ``recommMean`` (투자의견 평균
-1=매도 ~ 5=매수) / ``createDate`` 가 들어있다.
+⚠ 2026-05-09: 무료 한국 금융 컨센서스 사이트 (네이버 / 한경 / 다음 모바일) 의
+robots.txt 가 모두 ``Disallow: /`` 로 일반 크롤러 차단 정책을 명시하고 있어
+스크래핑 기반 provider 는 사용하지 않는다 (CLAUDE.md §4 준수).
 
-추후 유료 데이터 (e.g. FnGuide, Refinitiv) 로 교체 시 ``BaseTPProvider`` 를 구현한
-새 클래스를 만들고 ``fetch_tp_consensus(provider=...)`` 에 주입하면 됨.
+향후 유료 API 키 (FnGuide / Refinitiv / Quantiwise 등) 가 준비되면
+``BaseTPProvider`` 를 구현한 새 클래스를 만들고 ``fetch_tp_consensus(provider=...)``
+에 주입하면 된다. ``main.py`` 의 호출은 현재 ``tp_meta = None`` 으로 우회 중.
 
-CLAUDE.md §3.1: 메타 트리플 wrap 으로 raw_dir 에 저장 가능한 형식 반환.
+``NaverTPProvider`` 는 약관 검증을 위한 reference 코드로만 보존 — main.py 에서
+호출하지 않는다. 활성화 시 robots.txt 재확인 + 약관 검토 필요.
 """
 
 from __future__ import annotations

@@ -25,10 +25,11 @@ from src.analyzers import disclosure as disclosure_analyzer
 from src.analyzers import financials as financials_analyzer
 from src.analyzers import flow as flow_analyzer
 from src.analyzers import macro as macro_analyzer
+from src.analyzers import market_overview as market_analyzer
 from src.analyzers import peer as peer_analyzer
 from src.analyzers import price as price_analyzer
 from src.cli import CliArgs, parse_args
-from src.collectors import dart_openapi, krx_openapi
+from src.collectors import dart_openapi, krx_etp, krx_openapi
 from src.collectors import macro as macro_collector
 from src.config import (
     DISCLAIMER_EN,
@@ -401,13 +402,10 @@ def build(args: CliArgs) -> Path:
         logger.warning("%s 시총 fetch 실패: %s", args.ticker, exc)
         cap_meta = None
 
-    # TP 컨센서스 (네이버 finance 모바일 API)
-    try:
-        tp_meta = tp_module.fetch_tp_consensus(args.ticker)
-        _save_raw(tp_meta, raw_dir, args.ticker, "tp_consensus")
-    except Exception as exc:  # noqa: BLE001
-        logger.warning("%s TP 컨센서스 fetch 실패: %s", args.ticker, exc)
-        tp_meta = None
+    # TP 컨센서스 — 무료 데이터 소스 모두 robots.txt Disallow: / 정책이라 보류.
+    # 유료 API 키 (FnGuide / Refinitiv / Quantiwise 등) 준비 후 BaseTPProvider 구현체
+    # 추가 + 아래 라인 활성화. (CLAUDE.md §4 준수)
+    tp_meta = None
 
     # 3. 피어
     peer_note = ""
@@ -682,13 +680,79 @@ def build(args: CliArgs) -> Path:
     return out_path
 
 
+def build_market_overview(args: CliArgs) -> Path:
+    """ETF / ETN / ELW 시장 전반 분석 + root index 갱신.
+
+    KRX OpenAPI ``etp/{etf,etn,elw}_bydd_trd`` 가 1순위. ETF 만 미승인 시 pykrx
+    fallback. ETN/ELW 미승인 시 graceful — placeholder 메시지.
+    """
+    report_date = args.report_date
+    date_str = report_date.isoformat()
+    todate = _yyyymmdd(report_date)
+    raw_dir = RAW_DIR / date_str
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    overviews: dict[str, Any] = {}
+    statuses: dict[str, int] = {}
+
+    # 1) ETF — KRX OpenAPI → pykrx fallback
+    krx_etf = krx_etp.fetch_etf_bydd_trd(todate)
+    statuses["etf"] = krx_etf.get("status", 0)
+    if krx_etf.get("status") == 200 and krx_etf.get("data"):
+        _save_raw(krx_etf, raw_dir, "_market", "etf")
+        overviews["ETF"] = market_analyzer.analyze_etp_market(krx_etf["data"], kind="ETF")
+    else:
+        logger.info("KRX OpenAPI ETF 미승인 (status=%s) → pykrx fallback", krx_etf.get("status"))
+        try:
+            etf_meta = pykrx_price.fetch_etf_market(todate)
+            _save_raw(etf_meta, raw_dir, "_market", "etf")
+            overviews["ETF"] = market_analyzer.analyze_etp_market(etf_meta.get("data", []), kind="ETF")
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("ETF pykrx fallback 실패: %s", exc)
+            overviews["ETF"] = market_analyzer.analyze_etp_market([], kind="ETF")
+
+    # 2) ETN — KRX OpenAPI 만 (pykrx 미제공)
+    krx_etn = krx_etp.fetch_etn_bydd_trd(todate)
+    statuses["etn"] = krx_etn.get("status", 0)
+    if krx_etn.get("status") == 200 and krx_etn.get("data"):
+        _save_raw(krx_etn, raw_dir, "_market", "etn")
+        overviews["ETN"] = market_analyzer.analyze_etp_market(krx_etn["data"], kind="ETN")
+    else:
+        overviews["ETN"] = market_analyzer.analyze_etp_market([], kind="ETN")
+
+    # 3) ELW — KRX OpenAPI 만
+    krx_elw = krx_etp.fetch_elw_bydd_trd(todate)
+    statuses["elw"] = krx_elw.get("status", 0)
+    if krx_elw.get("status") == 200 and krx_elw.get("data"):
+        _save_raw(krx_elw, raw_dir, "_market", "elw")
+        overviews["ELW"] = market_analyzer.analyze_etp_market(krx_elw["data"], kind="ELW")
+    else:
+        overviews["ELW"] = market_analyzer.analyze_etp_market([], kind="ELW")
+
+    html_renderer.update_root_index(market_overview={"overviews": overviews, "statuses": statuses, "as_of": date_str})
+    out_path = OUTPUT_DIR / "index.html"
+    logger.info(
+        "MARKET DONE %s: ETF=%d / ETN=%d (status=%s) / ELW=%d (status=%s)",
+        out_path,
+        overviews.get("ETF", {}).get("count", 0),
+        overviews.get("ETN", {}).get("count", 0),
+        statuses.get("etn"),
+        overviews.get("ELW", {}).get("count", 0),
+        statuses.get("elw"),
+    )
+    return out_path
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
     )
     args = parse_args(argv)
-    out = build(args)
+    if args.market_only:
+        out = build_market_overview(args)
+    else:
+        out = build(args)
     logger.info("리포트: %s", out)
     return 0
 

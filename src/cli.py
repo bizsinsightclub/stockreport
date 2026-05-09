@@ -13,6 +13,7 @@ class CliArgs:
     peers: list[str] | None
     report_date: date
     skip_llm: bool
+    market_only: bool = False
 
 
 def _parse_peers(raw: str | None) -> list[str] | None:
@@ -48,7 +49,15 @@ def parse_args(argv: list[str] | None = None) -> CliArgs:
     )
     parser.add_argument(
         "ticker",
-        help="6자리 KRX 종목코드 (예: 329180, 005930)",
+        nargs="?",
+        default="",
+        help="6자리 KRX 종목코드 (예: 329180, 005930). --market 사용 시 생략 가능",
+    )
+    parser.add_argument(
+        "--market",
+        dest="market_only",
+        action="store_true",
+        help="ETF/ETN/ELW 시장 전반 root index 만 갱신 (단일 종목 빌드 안 함)",
     )
     parser.add_argument(
         "--peers",
@@ -70,12 +79,21 @@ def parse_args(argv: list[str] | None = None) -> CliArgs:
     )
 
     ns = parser.parse_args(argv)
+    if ns.market_only:
+        return CliArgs(
+            ticker="",
+            peers=None,
+            report_date=_parse_date(ns.report_date),
+            skip_llm=ns.skip_llm,
+            market_only=True,
+        )
     if not (ns.ticker.isdigit() and len(ns.ticker) == 6):
-        parser.error(f"ticker 는 6자리 숫자여야 합니다: {ns.ticker}")
+        parser.error(f"ticker 는 6자리 숫자여야 합니다: {ns.ticker!r} (또는 --market 사용)")
 
     return CliArgs(
         ticker=ns.ticker,
         peers=_parse_peers(ns.peers),
         report_date=_parse_date(ns.report_date),
         skip_llm=ns.skip_llm,
+        market_only=False,
     )
