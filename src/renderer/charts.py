@@ -198,6 +198,103 @@ def flow_chart(flow_enriched: pd.DataFrame, *, height: int = 260) -> str:
     return _to_div(fig)
 
 
+def volume_chart(enriched_price: pd.DataFrame, *, height: int = 220) -> str:
+    """일별 거래량 막대 + 60일 이동평균 라인."""
+    try:
+        import plotly.graph_objects as go  # type: ignore
+    except ImportError:
+        return _empty("plotly 미설치")
+    if enriched_price is None or enriched_price.empty or "거래량" not in enriched_price.columns:
+        return _empty("거래량 데이터 없음")
+
+    vol = enriched_price["거래량"].astype(float)
+    ma60 = vol.rolling(60).mean()
+
+    fig = go.Figure()
+    fig.add_trace(
+        go.Bar(
+            x=enriched_price.index,
+            y=vol,
+            name="거래량",
+            marker={"color": COLOR_ACCENT_SOFT, "opacity": 0.55},
+            hovertemplate="%{x|%Y-%m-%d}<br>%{y:,.0f} 주<extra></extra>",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=enriched_price.index,
+            y=ma60,
+            name="60일 평균",
+            mode="lines",
+            line={"color": COLOR_ACCENT, "width": 1.8},
+            hovertemplate="%{x|%Y-%m-%d}<br>MA60: %{y:,.0f}<extra></extra>",
+        )
+    )
+    layout = dict(_LAYOUT_BASE)
+    layout["height"] = height
+    layout["yaxis"] = {**layout.get("yaxis", {}), "title": {"text": "거래량 (주)", "font": {"color": COLOR_MUTED, "size": 10}}}
+    fig.update_layout(**layout)
+    return _to_div(fig)
+
+
+def flow_share_chart(flow_enriched: pd.DataFrame, *, height: int = 220) -> str:
+    """외/기/개/기타 일별 net 비중 stacked (100% 정규화).
+
+    각 일자 절대값 합계 대비 비중 — '누가 얼마만큼 시장을 움직였나' 시각화.
+    """
+    try:
+        import plotly.graph_objects as go  # type: ignore
+    except ImportError:
+        return _empty("plotly 미설치")
+    if flow_enriched is None or flow_enriched.empty:
+        return _empty("수급 데이터 없음")
+
+    src_cols: list[tuple[str, str]] = []  # (display_name, raw_col)
+    for disp, raw_candidates in (
+        ("외국인", ("외국인합계", "외국인계", "외국인")),
+        ("기관", ("기관합계", "기관계", "기관")),
+        ("개인", ("개인",)),
+        ("기타법인", ("기타법인",)),
+    ):
+        for c in raw_candidates:
+            if c in flow_enriched.columns:
+                src_cols.append((disp, c))
+                break
+
+    if not src_cols:
+        return _empty("수급 컬럼 없음")
+
+    abs_df = pd.DataFrame({disp: flow_enriched[c].astype(float).abs() for disp, c in src_cols})
+    total = abs_df.sum(axis=1).replace(0, pd.NA)
+    share = abs_df.div(total, axis=0) * 100.0
+
+    color_map = {
+        "외국인": COLOR_ACCENT,
+        "기관": COLOR_ACCENT_SOFT,
+        "개인": COLOR_MUTED,
+        "기타법인": "#3a4a5a",
+    }
+
+    fig = go.Figure()
+    for disp, _ in src_cols:
+        fig.add_trace(
+            go.Bar(
+                x=share.index,
+                y=share[disp],
+                name=disp,
+                marker={"color": color_map.get(disp, COLOR_TEXT)},
+                hovertemplate="%{x|%Y-%m-%d}<br>" + disp + ": %{y:.1f}%<extra></extra>",
+            )
+        )
+
+    layout = dict(_LAYOUT_BASE)
+    layout["height"] = height
+    layout["barmode"] = "stack"
+    layout["yaxis"] = {**layout.get("yaxis", {}), "title": {"text": "거래주체 비중 (%)", "font": {"color": COLOR_MUTED, "size": 10}}, "range": [0, 100]}
+    fig.update_layout(**layout)
+    return _to_div(fig)
+
+
 def peer_normalized_chart(normalized: pd.DataFrame, target_ticker: str, *, height: int = 280) -> str:
     """피어 정규화 100 기준 추이."""
     try:

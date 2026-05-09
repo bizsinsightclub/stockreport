@@ -4,11 +4,11 @@
   "generated_at": "2026-05-09T09:30:00+09:00",
   "slots": {
     "brief": {
-      "raw_text": "5월 8일 종가 658,000원, 전일 대비 -5.05% 큰 폭 조정, 거래량 620,226주로 변동성 확대. 외국인 단일일 -661.6억원·5거래일 누적 -1,188.9억원으로 지속 매도하나 개인이 5거래일 +1,167.2억원으로 받쳐냄. 52주 위치 86.2% 의 신고가권에서 발생한 차익실현 양상으로, RSI 70 부근 고점에서 61.2 중립권 회귀 진행.",
+      "raw_text": "5월 8일 종가 658,000원, 전일 대비 -5.05% 큰 폭 조정, 거래량 620,979주로 변동성 확대. 외국인 단일일 -661.6억원·5거래일 누적 -1,188.9억원으로 지속 매도하나 개인이 5거래일 +1,167.2억원으로 받쳐냄. 52주 위치 86.2% 의 신고가권에서 발생한 차익실현 양상으로, RSI 70 부근 고점에서 61.2 중립권 회귀 진행.",
       "citations": [
         {"token": "658,000", "file": "329180_enriched.json", "path": "data.header.price_now", "value": 658000},
         {"token": "-5.05%", "file": "329180_enriched.json", "path": "data.header.change_pct", "value": -5.05},
-        {"token": "620,226", "file": "329180_enriched.json", "path": "data.peer_rows.0.volume", "value": 620226},
+        {"token": "620,979", "file": "329180_enriched.json", "path": "data.peer_rows.0.volume", "value": 620979},
         {"token": "-661.6", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -661.6},
         {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9},
         {"token": "+1,167.2", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_5d_oku", "value": 1167.2},

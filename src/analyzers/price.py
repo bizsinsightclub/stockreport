@@ -176,6 +176,40 @@ def header_summary(enriched: pd.DataFrame) -> dict[str, Any]:
     }
 
 
+def volume_metrics(enriched: pd.DataFrame, market_cap: float | None) -> dict[str, Any]:
+    """§1.6 거래활성도 카드용 요약.
+
+    - 오늘 거래대금 (억원)
+    - 60일 평균 거래대금 (억원)
+    - 비율 (오늘 / 60일 평균, %)
+    - 회전율 (오늘 거래대금 / 시총, %)  — market_cap 미제공 시 None
+    """
+    out: dict[str, Any] = {
+        "today_traded_oku": None,
+        "avg60_traded_oku": None,
+        "ratio_pct": None,
+        "turnover_pct": None,
+        "today_volume": None,
+        "avg60_volume": None,
+    }
+    if enriched.empty or "거래대금" not in enriched.columns:
+        return out
+    val = enriched["거래대금"].astype(float)
+    today_v = float(val.iloc[-1]) if len(val) else 0.0
+    avg60 = float(val.tail(60).mean()) if len(val) else 0.0
+    out["today_traded_oku"] = round(today_v / 1e8, 1)
+    out["avg60_traded_oku"] = round(avg60 / 1e8, 1)
+    if avg60 > 0:
+        out["ratio_pct"] = round(today_v / avg60 * 100.0, 1)
+    if market_cap and market_cap > 0:
+        out["turnover_pct"] = round(today_v / float(market_cap) * 100.0, 3)
+    if "거래량" in enriched.columns:
+        vol = enriched["거래량"].astype(float)
+        out["today_volume"] = int(vol.iloc[-1]) if len(vol) else None
+        out["avg60_volume"] = int(vol.tail(60).mean()) if len(vol) else None
+    return out
+
+
 def fallback_brief(enriched: pd.DataFrame, ticker: str) -> str:
     """LLM 미사용 시 ``brief`` 슬롯에 채울 룰 기반 한 줄."""
     if enriched.empty:

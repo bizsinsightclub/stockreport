@@ -229,12 +229,49 @@
   <!-- SECTION 1.5: 외국인/기관/개인 누적 수급 -->
   <section>
     <div class="section-head">
-      <div class="section-num">02 / FIVE</div>
+      <div class="section-num">02 / SEVEN</div>
       <h2 class="section-title">외국인·기관 <em>수급</em></h2>
     </div>
 
     <div class="chart-card" data-noverify="true">
       {{ chart_flow | safe }}
+    </div>
+  </section>
+
+  <!-- SECTION 1.6: 거래활성도 / 수급 강도 -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">03 / SEVEN</div>
+      <h2 class="section-title">거래 <em>활성도</em> · 수급 강도</h2>
+    </div>
+
+    {% if volume_metrics %}
+    <div class="val-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+      <div class="val-card">
+        <div class="val-name">오늘 거래대금</div>
+        <div class="val-value {% if volume_metrics.today_traded_oku is none %}na{% endif %}">{% if volume_metrics.today_traded_oku is not none %}{{ "{:,.1f}".format(volume_metrics.today_traded_oku) }}억원{% else %}—{% endif %}</div>
+      </div>
+      <div class="val-card">
+        <div class="val-name">60일 평균 거래대금</div>
+        <div class="val-value {% if volume_metrics.avg60_traded_oku is none %}na{% endif %}">{% if volume_metrics.avg60_traded_oku is not none %}{{ "{:,.1f}".format(volume_metrics.avg60_traded_oku) }}억원{% else %}—{% endif %}</div>
+      </div>
+      <div class="val-card">
+        <div class="val-name">평균 대비 비율</div>
+        <div class="val-value {% if volume_metrics.ratio_pct is none %}na{% endif %}">{% if volume_metrics.ratio_pct is not none %}{{ "{:.1f}".format(volume_metrics.ratio_pct) }}%{% else %}—{% endif %}</div>
+      </div>
+      <div class="val-card">
+        <div class="val-name">회전율 (오늘)</div>
+        <div class="val-value {% if volume_metrics.turnover_pct is none %}na{% endif %}">{% if volume_metrics.turnover_pct is not none %}{{ "{:.3f}".format(volume_metrics.turnover_pct) }}%{% else %}N/A{% endif %}</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="chart-card" data-noverify="true">
+      {{ chart_volume | safe }}
+    </div>
+
+    <div class="chart-card" data-noverify="true" style="margin-top:16px">
+      {{ chart_flow_share | safe }}
     </div>
   </section>
 

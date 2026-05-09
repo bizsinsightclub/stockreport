@@ -393,6 +393,14 @@ def build(args: CliArgs) -> Path:
     fund_meta = _safe_fetch_fundamental(args.ticker, todate)
     _save_raw(fund_meta, raw_dir, args.ticker, "fundamental")
 
+    # 시총 단일 일자 — 회전율 계산용
+    try:
+        cap_meta = pykrx_price.fetch_market_cap_single(args.ticker, todate)
+        _save_raw(cap_meta, raw_dir, args.ticker, "market_cap")
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("%s 시총 fetch 실패: %s", args.ticker, exc)
+        cap_meta = None
+
     # TP 컨센서스 (네이버 finance 모바일 API)
     try:
         tp_meta = tp_module.fetch_tp_consensus(args.ticker)
@@ -474,6 +482,10 @@ def build(args: CliArgs) -> Path:
         tp_data["upside_pct"] = round((tp_avg_v - float(cur_price)) / float(cur_price) * 100.0, 2)
         tp_data["current_price"] = float(cur_price)
 
+    # §1.6 거래활성도 (회전율, 거래대금 평균 비교)
+    market_cap_v = ((cap_meta or {}).get("data", {}) or {}).get("시가총액")
+    volume_metrics = price_analyzer.volume_metrics(enriched_price, market_cap_v)
+
     normalized_peer = peer_analyzer.normalized_frame(
         args.ticker,
         price_records,
@@ -507,6 +519,8 @@ def build(args: CliArgs) -> Path:
     # ─── Charts ────────────────────────────────────────────────────
     chart_price = chart_builder.price_chart(enriched_price)
     chart_flow = chart_builder.flow_chart(enriched_flow)
+    chart_volume = chart_builder.volume_chart(enriched_price)
+    chart_flow_share = chart_builder.flow_share_chart(enriched_flow)
     chart_peer = chart_builder.peer_normalized_chart(normalized_peer, args.ticker)
     chart_financials = chart_builder.financials_bars(fin_df)
     chart_macro = ""
@@ -566,6 +580,9 @@ def build(args: CliArgs) -> Path:
         "macro_skipped": macro_skipped,
         "valuation": valuation,
         "tp_consensus": tp_data,
+        "volume_metrics": volume_metrics,
+        "chart_volume": chart_volume,
+        "chart_flow_share": chart_flow_share,
         "chart_price": chart_price,
         "chart_flow": chart_flow,
         "chart_peer": chart_peer,
@@ -615,6 +632,7 @@ def build(args: CliArgs) -> Path:
         "flow_summary": flow_summary,
         "valuation": valuation,
         "tp_consensus": tp_data,
+        "volume_metrics": volume_metrics,
     }
     _save_raw(
         {
