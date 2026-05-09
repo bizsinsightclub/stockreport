@@ -42,6 +42,22 @@ def render_skeleton(ctx: dict[str, Any]) -> str:
     return template.render(**ctx)
 
 
+def _read_ticker_meta(folder: Path) -> dict[str, str]:
+    """``_meta.json`` 캐시 (build() 시 저장) → name/market/sector_name."""
+    p = folder / "_meta.json"
+    if not p.exists():
+        return {"name": "", "market": "", "sector_name": ""}
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+        return {
+            "name": str(d.get("name") or ""),
+            "market": str(d.get("market") or ""),
+            "sector_name": str(d.get("sector_name") or ""),
+        }
+    except (json.JSONDecodeError, OSError):
+        return {"name": "", "market": "", "sector_name": ""}
+
+
 def update_ticker_index(ticker: str, *, output_dir: Path = OUTPUT_DIR) -> Path:
     """``data/output/{ticker}/index.html`` 갱신."""
     folder = output_dir / ticker
@@ -57,12 +73,13 @@ def update_ticker_index(ticker: str, *, output_dir: Path = OUTPUT_DIR) -> Path:
         size_kb = max(1, f.stat().st_size // 1024)
         reports.append({"date": date_part, "href": f.name, "size_kb": size_kb})
 
+    meta = _read_ticker_meta(folder)
     env = _env()
     template = env.get_template("ticker_index.html.j2")
     html = template.render(
         ticker=ticker,
-        name="",
-        market="",
+        name=meta["name"],
+        market=meta["market"],
         reports=reports,
     )
     out = folder / "index.html"
@@ -94,10 +111,13 @@ def update_root_index(
         if not reports:
             continue
         latest = max(reports, key=lambda f: f.stem)
+        meta = _read_ticker_meta(child)
         tickers.append(
             {
                 "ticker": child.name,
-                "name": "",
+                "name": meta["name"],
+                "market": meta["market"],
+                "sector_name": meta["sector_name"],
                 "latest_date": latest.stem,
                 "count": len(reports),
             }

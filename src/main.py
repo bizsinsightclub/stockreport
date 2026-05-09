@@ -648,6 +648,23 @@ def build(args: CliArgs) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{date_str}.html"
 
+    # ticker 메타 캐시 — root_index / ticker_index 가 이름을 표시할 수 있도록
+    try:
+        (out_dir / "_meta.json").write_text(
+            json.dumps(
+                {
+                    "ticker": args.ticker,
+                    "name": meta.name or args.ticker,
+                    "market": meta.market or "",
+                    "sector_name": meta.sector_name or "",
+                },
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
+
     # 1차 렌더 (validation 없이)
     html1 = html_renderer.render_skeleton(ctx)
     out_path.write_text(html1, encoding="utf-8")

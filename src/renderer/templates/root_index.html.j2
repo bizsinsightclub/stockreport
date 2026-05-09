@@ -64,12 +64,15 @@
 
   /* TICKER LIST */
   ul.ticker-list{list-style:none;background:var(--surface);border:1px solid var(--border)}
-  ul.ticker-list li{padding:14px 18px;border-bottom:1px solid #1f1f22;display:grid;grid-template-columns:120px 1fr auto;gap:16px;align-items:baseline}
+  ul.ticker-list li{padding:18px 22px;border-bottom:1px solid #1f1f22;display:grid;grid-template-columns:54px 1fr auto;gap:18px;align-items:center}
   ul.ticker-list li:last-child{border-bottom:none}
-  ul.ticker-list li a{color:var(--text);text-decoration:none;border-bottom:1px dotted var(--muted)}
-  ul.ticker-list li a:hover{color:var(--accent);border-color:var(--accent)}
-  ul.ticker-list .name{font-size:13px}
-  ul.ticker-list .latest{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  ul.ticker-list .monogram{width:46px;height:46px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--display);font-size:1.3rem;color:var(--bg);font-weight:500;letter-spacing:0;background:linear-gradient(135deg,var(--accent) 0%,var(--accent-soft) 100%);box-shadow:0 0 0 1px var(--border)}
+  ul.ticker-list .info-name{font-size:15px;color:var(--text);font-weight:400;margin-bottom:2px}
+  ul.ticker-list .info-name a{color:var(--text);text-decoration:none}
+  ul.ticker-list .info-name a:hover{color:var(--accent)}
+  ul.ticker-list .info-meta{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.05em}
+  ul.ticker-list .latest{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:right;line-height:1.5}
+  ul.ticker-list .latest .date{color:var(--accent-soft)}
 
   footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8}
   footer a{color:var(--muted)}footer a:hover{color:var(--accent)}
@@ -236,9 +239,12 @@
     <ul class="ticker-list">
     {% for t in tickers %}
       <li>
-        <span class="ticker-code"><a href="{{ t.ticker }}/index.html">{{ t.ticker }}</a></span>
-        <span class="name">{{ t.name or t.ticker }}</span>
-        <span class="latest">최신 {{ t.latest_date }} · {{ t.count }}건</span>
+        <span class="monogram" data-noverify="true">{{ (t.name or t.ticker)[0] }}</span>
+        <div>
+          <div class="info-name"><a href="{{ t.ticker }}/index.html">{{ t.name or t.ticker }}</a></div>
+          <div class="info-meta">{{ t.ticker }}{% if t.market %} · {{ t.market }}{% endif %}{% if t.sector_name %} · {{ t.sector_name }}{% endif %}</div>
+        </div>
+        <span class="latest">최신 <span class="date">{{ t.latest_date }}</span><br>{{ t.count }}건</span>
       </li>
     {% else %}
       <li>아직 종목이 없습니다.</li>

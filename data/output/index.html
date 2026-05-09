@@ -64,12 +64,15 @@
 
   /* TICKER LIST */
   ul.ticker-list{list-style:none;background:var(--surface);border:1px solid var(--border)}
-  ul.ticker-list li{padding:14px 18px;border-bottom:1px solid #1f1f22;display:grid;grid-template-columns:120px 1fr auto;gap:16px;align-items:baseline}
+  ul.ticker-list li{padding:18px 22px;border-bottom:1px solid #1f1f22;display:grid;grid-template-columns:54px 1fr auto;gap:18px;align-items:center}
   ul.ticker-list li:last-child{border-bottom:none}
-  ul.ticker-list li a{color:var(--text);text-decoration:none;border-bottom:1px dotted var(--muted)}
-  ul.ticker-list li a:hover{color:var(--accent);border-color:var(--accent)}
-  ul.ticker-list .name{font-size:13px}
-  ul.ticker-list .latest{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  ul.ticker-list .monogram{width:46px;height:46px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--display);font-size:1.3rem;color:var(--bg);font-weight:500;letter-spacing:0;background:linear-gradient(135deg,var(--accent) 0%,var(--accent-soft) 100%);box-shadow:0 0 0 1px var(--border)}
+  ul.ticker-list .info-name{font-size:15px;color:var(--text);font-weight:400;margin-bottom:2px}
+  ul.ticker-list .info-name a{color:var(--text);text-decoration:none}
+  ul.ticker-list .info-name a:hover{color:var(--accent)}
+  ul.ticker-list .info-meta{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.05em}
+  ul.ticker-list .latest{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:right;line-height:1.5}
+  ul.ticker-list .latest .date{color:var(--accent-soft)}
 
   footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8}
   footer a{color:var(--muted)}footer a:hover{color:var(--accent)}
@@ -81,7 +84,7 @@
   <header>
     <div class="brand">Daily Equity & ETP Brief</div>
     <h1>KRX 종목·시장 <em>리포트</em></h1>
-    <div class="sub">Generated 2026-05-09 16:57 KST · 시장 기준일 2026-05-08</div>
+    <div class="sub">Generated 2026-05-09 17:02 KST · 시장 기준일 2026-05-08</div>
   </header>
 
   
@@ -615,15 +618,30 @@
     <ul class="ticker-list">
     
       <li>
-        <span class="ticker-code"><a href="329180/index.html">329180</a></span>
-        <span class="name">329180</span>
-        <span class="latest">최신 2026-05-09 · 2건</span>
+        <span class="monogram" data-noverify="true">엘</span>
+        <div>
+          <div class="info-name"><a href="290650/index.html">엘앤씨바이오</a></div>
+          <div class="info-meta">290650 · KOSDAQ</div>
+        </div>
+        <span class="latest">최신 <span class="date">2026-05-08</span><br>1건</span>
       </li>
     
       <li>
-        <span class="ticker-code"><a href="456160/index.html">456160</a></span>
-        <span class="name">456160</span>
-        <span class="latest">최신 2026-05-08 · 1건</span>
+        <span class="monogram" data-noverify="true">H</span>
+        <div>
+          <div class="info-name"><a href="329180/index.html">HD현대중공업</a></div>
+          <div class="info-meta">329180 · KOSPI</div>
+        </div>
+        <span class="latest">최신 <span class="date">2026-05-09</span><br>2건</span>
+      </li>
+    
+      <li>
+        <span class="monogram" data-noverify="true">지</span>
+        <div>
+          <div class="info-name"><a href="456160/index.html">지투지바이오</a></div>
+          <div class="info-meta">456160 · KOSDAQ</div>
+        </div>
+        <span class="latest">최신 <span class="date">2026-05-08</span><br>1건</span>
       </li>
     
     </ul>
@@ -631,7 +649,7 @@
 
   <footer>
     데이터 소스: KRX OpenAPI · pykrx · DART OpenAPI · Frankfurter (ECB)<br>
-    Generated 2026-05-09 16:57 KST<br>
+    Generated 2026-05-09 17:02 KST<br>
     본 리포트는 정보 제공 목적이며 투자 조언이 아닙니다.
   </footer>
 
