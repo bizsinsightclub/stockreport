@@ -549,6 +549,11 @@ def build(args: CliArgs) -> Path:
         logger.info("LLM 사이드카 적용: %d 슬롯", len(llm_slots))
     llm_slot_keys = set(llm_slots.keys())
 
+    # 섹션별 lens (3 level × 3 timeframe = 9 텍스트/섹션)
+    lens = llm_inject.inject_lens(sidecar)
+    if lens:
+        logger.info("LLM lens 적용: %d 섹션", len(lens))
+
     # ─── Render context ────────────────────────────────────────────
     sources = []
     if price_meta:
@@ -593,6 +598,7 @@ def build(args: CliArgs) -> Path:
         "validation": None,
         "citations": None,
         "llm_slot_keys": llm_slot_keys,
+        "lens": lens,
     }
 
     # ─── analyzer 파생값을 raw_dir 에 함께 저장 (validator multiset 확장) ──

@@ -122,11 +122,53 @@
   .validation.pending{border-color:var(--muted);color:var(--muted)}
   [data-llm-slot] span[data-cite]{border-bottom:1px dotted var(--accent-soft);cursor:help}
   [data-llm-slot] span[data-cite]:hover{color:var(--accent)}
+
+  /* SECTION LENS — 초보/중급/전문가 × 1일/3일/이번주 토글 코멘트 */
+  .lens{margin-top:20px;background:#1a1a1f;border:1px solid var(--border);padding:18px 20px}
+  .lens-tabs{display:flex;gap:20px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+  .tg{display:inline-flex;align-items:stretch;border:1px solid var(--border);background:var(--bg)}
+  .tg-label{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;padding:9px 12px;border-right:1px solid var(--border);align-self:center}
+  .tg button{background:transparent;border:none;border-right:1px solid var(--border);padding:9px 16px;font-family:var(--mono);font-size:11px;color:var(--muted);cursor:pointer;letter-spacing:.05em}
+  .tg button:last-child{border-right:none}
+  .tg button.active{background:var(--accent);color:var(--bg);font-weight:500}
+  .tg button:hover:not(.active){color:var(--text)}
+  .lens-body{position:relative;min-height:56px}
+  .lens-text{font-size:13.5px;line-height:1.7;color:var(--text);display:none}
+  .lens-text[data-active]{display:block}
+  .lens-empty{font-style:italic;color:var(--muted);font-size:12px}
 </style>
 </head>
 <body>
 <div class="grain"></div>
 <div class="container">
+
+{# ─── lens 매크로: 섹션별 9-코멘트 토글 panel (3 lvl × 3 tf) ─── #}
+{% macro lens_panel(section_id) -%}
+<div class="lens" data-section="{{ section_id }}">
+  <div class="lens-tabs">
+    <div class="tg" data-axis="lvl">
+      <span class="tg-label">관점</span>
+      <button type="button" data-val="beg" class="active">초보</button>
+      <button type="button" data-val="int">중급</button>
+      <button type="button" data-val="exp">전문가</button>
+    </div>
+    <div class="tg" data-axis="tf">
+      <span class="tg-label">기간</span>
+      <button type="button" data-val="1d" class="active">1일</button>
+      <button type="button" data-val="3d">3일</button>
+      <button type="button" data-val="1w">이번주</button>
+    </div>
+  </div>
+  <div class="lens-body">
+    {% set sec = (lens or {}).get(section_id, {}) %}
+    {% for k in ['beg_1d','beg_3d','beg_1w','int_1d','int_3d','int_1w','exp_1d','exp_3d','exp_1w'] %}
+    <div class="lens-text" data-key="{{ k }}"{% if k == 'beg_1d' %} data-active{% endif %}{% if sec.get(k) %} data-llm-slot="lens__{{ section_id }}__{{ k }}" data-noverify="false"{% endif %}>
+      {% if sec.get(k) %}{{ sec[k] | safe }}{% else %}<span class="lens-empty" data-noverify="true">아직 작성되지 않은 코멘트입니다.</span>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{%- endmacro %}
 
   <!-- HEADER -->
   <header>
@@ -224,6 +266,7 @@
       {{ chart_price | safe }}
     </div>
     <div class="slot" {% if 's1_price' in llm_slot_keys %}data-llm-slot="s1_price" data-noverify="false"{% endif %}>{{ slots.s1_price | safe }}</div>
+    {{ lens_panel('s1_price') }}
   </section>
 
   <!-- SECTION 1.5: 외국인/기관/개인 누적 수급 -->
@@ -236,6 +279,7 @@
     <div class="chart-card" data-noverify="true">
       {{ chart_flow | safe }}
     </div>
+    {{ lens_panel('s15_flow') }}
   </section>
 
   <!-- SECTION 1.6: 거래활성도 / 수급 강도 -->
@@ -273,6 +317,7 @@
     <div class="chart-card" data-noverify="true" style="margin-top:16px">
       {{ chart_flow_share | safe }}
     </div>
+    {{ lens_panel('s16_volume') }}
   </section>
 
   <!-- SECTION 2: 기술지표 -->
@@ -300,6 +345,7 @@
       </div>
     </div>
     <div class="slot" {% if 's2_tech' in llm_slot_keys %}data-llm-slot="s2_tech" data-noverify="false"{% endif %}>{{ slots.s2_tech | safe }}</div>
+    {{ lens_panel('s2_tech') }}
   </section>
 
   <!-- SECTION 3: 공시 -->
@@ -339,6 +385,7 @@
         </tbody>
       </table>
     </div>
+    {{ lens_panel('s3_disc') }}
   </section>
 
   <!-- SECTION 3.5: 재무제표 -->
@@ -382,6 +429,7 @@
     <div class="chart-card" data-noverify="true">
       {{ chart_financials | safe }}
     </div>
+    {{ lens_panel('s4_fin') }}
   </section>
 
   <!-- SECTION 4: 피어 비교 -->
@@ -423,6 +471,7 @@
     </div>
     <div class="slot" {% if 's4_peer' in llm_slot_keys %}data-llm-slot="s4_peer" data-noverify="false"{% endif %}>{{ slots.s4_peer | safe }}</div>
     {% if peer_note %}<div class="slot-row" style="margin-top:8px" data-noverify="true">⚠ {{ peer_note }}</div>{% endif %}
+    {{ lens_panel('s5_peer') }}
   </section>
 
   <!-- SECTION 5: 거시 -->
@@ -454,6 +503,7 @@
     {% if macro_skipped %}
       <div class="slot-row" style="margin-top:8px">⚠ 미수집 거시 시리즈: {{ macro_skipped | join(", ") }}</div>
     {% endif %}
+    {{ lens_panel('s6_macro') }}
   </section>
 
   <!-- VALIDATION -->
@@ -491,5 +541,30 @@
   </footer>
 
 </div>
+<script>
+// Lens 토글 — 섹션별 9 코멘트 (3 lvl × 3 tf) 중 선택된 1개만 보여줌
+(function(){
+  document.querySelectorAll('.lens').forEach(function(lens){
+    var state = {lvl: 'beg', tf: '1d'};
+    function apply(){
+      var key = state.lvl + '_' + state.tf;
+      lens.querySelectorAll('.lens-text').forEach(function(t){
+        if (t.dataset.key === key) { t.dataset.active = ''; }
+        else { delete t.dataset.active; }
+      });
+    }
+    lens.querySelectorAll('.tg button').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var axis = btn.parentElement.dataset.axis;
+        state[axis] = btn.dataset.val;
+        btn.parentElement.querySelectorAll('button').forEach(function(b){
+          b.classList.toggle('active', b === btn);
+        });
+        apply();
+      });
+    });
+  });
+})();
+</script>
 </body>
 </html>

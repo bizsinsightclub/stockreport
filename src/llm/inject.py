@@ -100,11 +100,14 @@ def inject_slots(sidecar: dict[str, Any] | None) -> dict[str, str]:
     """사이드카 → ``{slot_id: html_with_citation_spans}``.
 
     None 또는 slots 비어있으면 빈 dict (호출부가 fallback 사용).
+    ``lens`` 구조 (3 level × 3 timeframe = 9 텍스트/섹션) 는 ``inject_lens`` 가 처리.
     """
     if not sidecar or not isinstance(sidecar.get("slots"), dict):
         return {}
     out: dict[str, str] = {}
     for slot_id, payload in sidecar["slots"].items():
+        if slot_id == "lens":
+            continue  # lens 는 inject_lens 로 분리 처리
         if not isinstance(payload, dict):
             continue
         raw_text = str(payload.get("raw_text") or payload.get("text") or "")
@@ -112,4 +115,47 @@ def inject_slots(sidecar: dict[str, Any] | None) -> dict[str, str]:
         if not isinstance(citations, list):
             citations = []
         out[slot_id] = _wrap_text(raw_text, citations)
+    return out
+
+
+# 섹션별 9-코멘트 키 (3 level × 3 timeframe). 사이드카 / 템플릿 양쪽 동일.
+LENS_KEYS: tuple[str, ...] = (
+    "beg_1d", "beg_3d", "beg_1w",
+    "int_1d", "int_3d", "int_1w",
+    "exp_1d", "exp_3d", "exp_1w",
+)
+
+
+def inject_lens(sidecar: dict[str, Any] | None) -> dict[str, dict[str, str]]:
+    """``slots.lens`` → ``{section_id: {key: html_with_citations}}``.
+
+    sidecar 구조::
+
+        {"slots": {"lens": {"s2_tech": {"beg_1d": {"raw_text", "citations"}, ...}}}}
+
+    각 9 키 (LENS_KEYS) 의 텍스트를 wrap. 비어 있으면 결과 dict 에서 생략 (템플릿이
+    fallback 으로 비워둠).
+    """
+    if not sidecar or not isinstance(sidecar.get("slots"), dict):
+        return {}
+    lens_root = sidecar["slots"].get("lens")
+    if not isinstance(lens_root, dict):
+        return {}
+
+    out: dict[str, dict[str, str]] = {}
+    for section_id, sec_payload in lens_root.items():
+        if not isinstance(sec_payload, dict):
+            continue
+        sec_out: dict[str, str] = {}
+        for key, item in sec_payload.items():
+            if key not in LENS_KEYS or not isinstance(item, dict):
+                continue
+            raw_text = str(item.get("raw_text") or "")
+            citations = item.get("citations") or []
+            if not isinstance(citations, list):
+                citations = []
+            if raw_text:
+                sec_out[key] = _wrap_text(raw_text, citations)
+        if sec_out:
+            out[section_id] = sec_out
     return out

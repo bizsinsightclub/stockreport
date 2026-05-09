@@ -110,7 +110,43 @@ py -3.11 -m src.main $ARGUMENTS
 
 `citations.unmatched > 0` 이면 `data/output/$ARGUMENTS/{date}.citations.json` 의 `examples_mismatched` / `examples_uncited` 보고 사이드카 (raw_text 또는 citations) 를 고친 후 재빌드.
 
-### 7. 사용자 보고
+### 7. (선택, 본격 분석 시 권장) 섹션별 lens 코멘트
+
+8 섹션 (`s1_price`, `s15_flow`, `s16_volume`, `s2_tech`, `s3_disc`, `s4_fin`, `s5_peer`, `s6_macro`) 각각 끝에 9 토글 코멘트 (3 관점 × 3 기간).
+
+사이드카 ``slots.lens`` 구조:
+
+```json
+{
+  "lens": {
+    "s2_tech": {
+      "beg_1d": {"raw_text": "...", "citations": [...]},
+      "beg_3d": {...}, "beg_1w": {...},
+      "int_1d": {...}, "int_3d": {...}, "int_1w": {...},
+      "exp_1d": {...}, "exp_3d": {...}, "exp_1w": {...}
+    },
+    "s4_fin": { ... }, "s5_peer": { ... }, "s6_macro": { ... }
+  }
+}
+```
+
+분량/어조 가이드:
+
+| 키 | 분량 | 어조 |
+|---|---|---|
+| `beg` | 1–2 문장 | 전문 용어 최소, 일반인 비유 ("외국인이 사면 외국 큰손이 좋게 본다") |
+| `int` | 2–3 문장 | 기본 용어 + 짧은 풀이 (RSI / PER 등) |
+| `exp` | 3–4 문장 | 분석가 어조, 매매 시그널 / 진입·차익실현 트리거 |
+
+| 키 | 기간 |
+|---|---|
+| `1d` | 직전 영업일 단일 (어제 하루) |
+| `3d` | 직전 3거래일 |
+| `1w` | 이번 주 (월요일이면 지난 주) 거래주간 종합 |
+
+`citations` 의무 동일 — 모든 numeric token wrap. raw 출처 정확히 매칭. 정성 표현 자유.
+
+### 8. 사용자 보고
 
 - HTML 출력 경로
 - 두 검증 배지 상태 (둘 다 pass 가 목표)
