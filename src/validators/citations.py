@@ -20,8 +20,11 @@ logger = logging.getLogger(__name__)
 
 _NUMBER_RE = re.compile(r"-?\d{1,3}(?:,\d{3})+(?:\.\d+)?%?|-?\d+(?:\.\d+)?%?")
 
-# 표준 기술지표 lookback / 통계 상수 — raw 에 있을 수 없으므로 cite 의무 면제
-_STANDARD_LOOKBACKS = frozenset({"52", "60", "90", "100", "120", "200", "252"})
+# RSI 임계 / lookback / 통계 상수 — raw 에 있을 수 없으므로 cite 의무 면제
+# 30/50/70/80: RSI · 50: 50선 · 60/90/100/120/200/252: 표준 lookback · 52: 52주
+_STANDARD_THRESHOLDS = frozenset(
+    {"50", "52", "60", "70", "80", "90", "100", "120", "200", "252"}
+)
 
 
 def _is_trivial(token: str) -> bool:
@@ -43,7 +46,7 @@ def _is_trivial(token: str) -> bool:
         return True
     if 1900 <= n <= 2100:
         return True
-    if clean in _STANDARD_LOOKBACKS:
+    if clean in _STANDARD_THRESHOLDS:
         return True
     return False
 

@@ -1,26 +1,34 @@
 {
   "ticker": "329180",
   "as_of": "2026-05-08",
-  "generated_at": "2026-05-09T09:15:00+09:00",
+  "generated_at": "2026-05-09T09:30:00+09:00",
   "slots": {
     "brief": {
-      "raw_text": "5월 8일 종가 658,000원으로 전일 대비 -5.05% 큰 폭 하락. 외국인이 -661.6억원 순매도하며 조선 피어 동반 약세.",
+      "raw_text": "5월 8일 종가 658,000원, 전일 대비 -5.05% 큰 폭 조정, 거래량 620,226주로 변동성 확대. 외국인 단일일 -661.6억원·5거래일 누적 -1,188.9억원으로 지속 매도하나 개인이 5거래일 +1,167.2억원으로 받쳐냄. 52주 위치 86.2% 의 신고가권에서 발생한 차익실현 양상으로, RSI 70 부근 고점에서 61.2 중립권 회귀 진행.",
       "citations": [
         {"token": "658,000", "file": "329180_enriched.json", "path": "data.header.price_now", "value": 658000},
         {"token": "-5.05%", "file": "329180_enriched.json", "path": "data.header.change_pct", "value": -5.05},
-        {"token": "-661.6", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -661.6}
+        {"token": "620,226", "file": "329180_enriched.json", "path": "data.peer_rows.0.volume", "value": 620226},
+        {"token": "-661.6", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -661.6},
+        {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9},
+        {"token": "+1,167.2", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_5d_oku", "value": 1167.2},
+        {"token": "86.2", "file": "329180_enriched.json", "path": "data.signals.week52_pos", "value": 86.2},
+        {"token": "61.2", "file": "329180_enriched.json", "path": "data.signals.rsi", "value": 61.2}
       ]
     },
     "s1_price": {
-      "raw_text": "5월 8일 거래량 620,226주 — 외국인 -661.6억원 순매도가 가격 압박을 주도. 5거래일 누적 외국인 -1,188.9억원으로 지속적 이탈 흐름.",
+      "raw_text": "5월 8일 단일일 외국인 -661.6억원·기관 -599.6억원 동시 매도, 개인 +1,227.9억원으로 수급 교체 진행. 5거래일 누적으로 외국인 -1,188.9억원·기관 -11.7억원 vs 개인 +1,167.2억원의 명확한 갈림. 외국인 매도 강도 둔화 또는 중단 시점이 1차 매집 검토 영역, 반대로 매도 가속 시 단기 박스권 하단 재테스트 가능.",
       "citations": [
-        {"token": "620,226", "file": "329180_enriched.json", "path": "data.peer_rows.0.volume", "value": 620226},
         {"token": "-661.6", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -661.6},
-        {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9}
+        {"token": "-599.6", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_last_day_oku", "value": -599.6},
+        {"token": "+1,227.9", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_last_day_oku", "value": 1227.9},
+        {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9},
+        {"token": "-11.7", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_5d_oku", "value": -11.7},
+        {"token": "+1,167.2", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_5d_oku", "value": 1167.2}
       ]
     },
     "s2_tech": {
-      "raw_text": "RSI(14) 61.2 로 중립권 유지하지만 52주 위치 86.2% 의 고점권에서 -5.05% 급락. MA5>MA20 골든 구조는 살아있으나 과열 부담 시그널이 동시 작동.",
+      "raw_text": "RSI(14) 61.2 로 중립권에 머물지만 직전 70 부근 고점에서 빠르게 빠진 흐름이라 단기 과열 해소가 진행 중. 52주 위치 86.2% 의 신고가권에서 발생한 -5.05% 조정은 차익실현 부담을 풀어내는 건강한 조정 가능성. MA5>MA20 골든 구조와 MACD 상승 방향성은 살아있어 중장기 추세 훼손은 미확인. 매집 관점에서는 RSI 50 회귀 + 외국인 매도 진정 시점이 분할 진입 영역, 매도 관점에서는 RSI 70 재돌파 실패 + 신고가 갱신 무산 시 일부 차익실현 검토 가능.",
       "citations": [
         {"token": "61.2", "file": "329180_enriched.json", "path": "data.signals.rsi", "value": 61.2},
         {"token": "86.2", "file": "329180_enriched.json", "path": "data.signals.week52_pos", "value": 86.2},
@@ -28,7 +36,7 @@
       ]
     },
     "s4_peer": {
-      "raw_text": "조선 피어 4사 모두 동반 하락 — 한화오션 -2.93%, 삼성중공업 -5.19%, 대한조선 -2.71%, 세진중공업 -4.06%. HD현대중공업의 -5.05% 는 삼성중공업 다음으로 큰 낙폭으로, 업종 차익실현 압력이 시총 상위 종목에 집중되는 양상.",
+      "raw_text": "조선 피어 4사 모두 동반 하락 — 한화오션 -2.93%, 삼성중공업 -5.19%, 대한조선 -2.71%, 세진중공업 -4.06% 로 업종 차익실현 압력이 광범위하게 작용. HD현대중공업의 -5.05% 는 삼성중공업 다음으로 큰 낙폭으로 시총 상위 종목에 매도가 집중되는 양상. 한화오션·대한조선의 상대적 작은 낙폭은 종목별 모멘텀 차별화 가능성을 시사 — 업종 매집 시 개별 종목 펀더멘털 및 수주 잔고 비교 필요. 단기로는 업종 동반 매도가 진정될 때까지 신규 진입 강도 조절이 합리적.",
       "citations": [
         {"token": "-2.93%", "file": "329180_enriched.json", "path": "data.peer_rows.1.change_pct", "value": -2.93},
         {"token": "-5.19%", "file": "329180_enriched.json", "path": "data.peer_rows.2.change_pct", "value": -5.19},
@@ -38,7 +46,7 @@
       ]
     },
     "s4_macro": {
-      "raw_text": "USD/KRW 1,466.78 원, 전일 대비 -0.69% 하락. 원화 약세 부담은 단기 완화 신호이나 수출주 모멘텀 자체는 외국인 매도 영향이 더 지배적.",
+      "raw_text": "USD/KRW 1,466.78 원, 전일 대비 -0.69% 강달러 일부 완화. 환율 효과는 단기 중립적이나 외국인 매도 흐름과 결합 시 수출주 자금 환원 압력 신호로도 해석 가능.",
       "citations": [
         {"token": "1,466.78", "file": "329180_enriched.json", "path": "data.macro_cards.0.value", "value": 1466.78},
         {"token": "-0.69%", "file": "329180_enriched.json", "path": "data.macro_cards.0.delta", "value": -0.69}

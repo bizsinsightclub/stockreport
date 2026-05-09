@@ -1,0 +1,55 @@
+{
+  "ticker": "456160",
+  "as_of": "2026-05-08",
+  "generated_at": "2026-05-09T09:30:00+09:00",
+  "slots": {
+    "brief": {
+      "raw_text": "5월 8일 종가 77,400원, 전일 대비 -1.65% 소폭 조정. 외국인이 -23.1억원 매도, 기관 +47.1억원 매수로 수급 갈림이 발생하면서 거래량 335,009주로 평이한 수준 유지. 52주 위치 25.5% 의 저점권에서 RSI 48.1 중립권 진입은 추세 전환 시도 단계 시그널.",
+      "citations": [
+        {"token": "77,400", "file": "456160_enriched.json", "path": "data.header.price_now", "value": 77400},
+        {"token": "-1.65%", "file": "456160_enriched.json", "path": "data.header.change_pct", "value": -1.65},
+        {"token": "-23.1", "file": "456160_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -23.1},
+        {"token": "+47.1", "file": "456160_enriched.json", "path": "data.flow_summary.institution_net_last_day_oku", "value": 47.1},
+        {"token": "335,009", "file": "456160_enriched.json", "path": "data.peer_rows.0.volume", "value": 335009},
+        {"token": "25.5", "file": "456160_enriched.json", "path": "data.signals.week52_pos", "value": 25.5},
+        {"token": "48.1", "file": "456160_enriched.json", "path": "data.signals.rsi", "value": 48.1}
+      ]
+    },
+    "s1_price": {
+      "raw_text": "5월 8일 단일일 기관 +47.1억원·외국인 -23.1억원으로 수급 갈림, 개인 -33.0억원 차익실현 동조. 5거래일 누적으로 기관 +231.8억원의 꾸준한 매수가 외국인 -77.5억원·개인 -161.0억원의 매도를 누르며 점진적 매집 흐름 형성. 기관 매수 지속이 핵심 모니터링 포인트, 약화 전환 시 단기 추세 둔화 신호.",
+      "citations": [
+        {"token": "+47.1", "file": "456160_enriched.json", "path": "data.flow_summary.institution_net_last_day_oku", "value": 47.1},
+        {"token": "-23.1", "file": "456160_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -23.1},
+        {"token": "-33.0", "file": "456160_enriched.json", "path": "data.flow_summary.individual_net_last_day_oku", "value": -33.0},
+        {"token": "+231.8", "file": "456160_enriched.json", "path": "data.flow_summary.institution_net_5d_oku", "value": 231.8},
+        {"token": "-77.5", "file": "456160_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -77.5},
+        {"token": "-161.0", "file": "456160_enriched.json", "path": "data.flow_summary.individual_net_5d_oku", "value": -161.0}
+      ]
+    },
+    "s2_tech": {
+      "raw_text": "RSI(14) 48.1 로 중립권에 진입, 직전 30 부근 과매도 영역에서 회복 진행. 52주 위치 25.5% 의 저점권은 매집 관점에서 가격 메리트 구간이며, MA5>MA20 골든 + MACD 상승 방향성 발생은 추세 전환 초입 시그널. Bollinger 밴드 내 위치는 변동성 안정 중. 매집 관점에서는 현재 영역이 분할 진입 검토 가능 구간, 매도 관점에서는 RSI 50 안착 실패 + 골든 구조 훼손 시 박스권 회귀 가능성.",
+      "citations": [
+        {"token": "48.1", "file": "456160_enriched.json", "path": "data.signals.rsi", "value": 48.1},
+        {"token": "25.5", "file": "456160_enriched.json", "path": "data.signals.week52_pos", "value": 25.5}
+      ]
+    },
+    "s4_peer": {
+      "raw_text": "코스닥 제약·바이오 피어 다수가 상승 — 삼천당제약 +1.13%, 에스티팜 +1.43%, 오스코텍 +3.87%, 엘앤씨바이오 +2.15%, 단 셀트리온제약 -2.19% 약세. 지투지바이오의 -1.65% 는 셀트리온제약과 함께 업종 강세 흐름에서 이탈한 약세 — 종목별 모멘텀 차별화 진행. 다음 영업일 업종 흐름 동조 회복 여부가 단기 모멘텀 회복 가늠자.",
+      "citations": [
+        {"token": "+1.13%", "file": "456160_enriched.json", "path": "data.peer_rows.1.change_pct", "value": 1.13},
+        {"token": "+1.43%", "file": "456160_enriched.json", "path": "data.peer_rows.2.change_pct", "value": 1.43},
+        {"token": "+3.87%", "file": "456160_enriched.json", "path": "data.peer_rows.4.change_pct", "value": 3.87},
+        {"token": "+2.15%", "file": "456160_enriched.json", "path": "data.peer_rows.5.change_pct", "value": 2.15},
+        {"token": "-2.19%", "file": "456160_enriched.json", "path": "data.peer_rows.3.change_pct", "value": -2.19},
+        {"token": "-1.65%", "file": "456160_enriched.json", "path": "data.header.change_pct", "value": -1.65}
+      ]
+    },
+    "s4_macro": {
+      "raw_text": "USD/KRW 1,466.78 원, 전일 대비 -0.69% 강달러 일부 완화. 제약·바이오 업종은 환율 민감도가 낮아 직접 영향 제한적, 다만 외국인 자금 환경 개선 신호로 일부 모멘텀 우호 작용.",
+      "citations": [
+        {"token": "1,466.78", "file": "456160_enriched.json", "path": "data.macro_cards.0.value", "value": 1466.78},
+        {"token": "-0.69%", "file": "456160_enriched.json", "path": "data.macro_cards.0.delta", "value": -0.69}
+      ]
+    }
+  }
+}
