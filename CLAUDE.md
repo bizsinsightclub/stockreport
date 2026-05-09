@@ -8,13 +8,17 @@
 
 1. **환각 없는 분석 (No Hallucination)이 본 프로젝트의 존재 이유다.** 이 원칙을 위반할 가능성이 있는 변경은 거부하거나, 거부하지 못한다면 명시적 경고와 함께 진행하라.
 2. **모든 수치는 출처가 있어야 한다.** 코드 어디서든 숫자를 보여주려면 `(값, 출처 URL/도구명, 조회시각)` 메타데이터가 함께 흘러야 한다.
-3. **LLM은 분석에 사용하지 않는다.** 사용자가 명시적으로 "LLM 코멘트 미포함"을 결정했다. 새 기능 추가 시 LLM 호출을 도입하고 싶다면 반드시 사용자에게 먼저 확인하라.
+3. **LLM 코멘트는 슬롯에만 사용하며 모든 numeric claim 에 citation 의무.** Phase 2 진입(2026-05-09)으로 LLM 코멘트가 도입되었다. 단 다음 제약을 절대 어기지 마라:
+   - LLM 출력은 `data/llm/{ticker}/{date}.json` 사이드카에서만 inject 한다 (외부 API 자동 호출 금지 — Claude Code 세션이 직접 작성).
+   - 모든 numeric claim 은 `<span data-cite="file:json-path:value">` 로 wrap 되어야 한다.
+   - `validators/citations.py` 가 모든 data-cite 를 raw_dir 안 json path 로 따라가서 value 일치 확인. mismatch 비율 >5% 면 빌드 배지 fail.
+   - 정성적 표현(예: "강세권에 진입") 은 자유, 그러나 수치는 반드시 raw 출처 매칭.
 4. **재현성이 성능보다 우선한다.** 매 빌드의 raw JSON 스냅샷을 `data/raw/YYYY-MM-DD/`에 보존하는 것은 비용이 들어도 유지하라.
 5. **읽기 전에 먼저 읽어라.** 파일 수정 전 반드시 view, MCP 도구 호출 전 반드시 list_tools, 의존성 추가 전 반드시 requirements.txt 확인.
 
 ## 1. 프로젝트 한 줄 정의
 
-KOSPI/KOSDAQ 임의 종목에 대해 슬래시 커맨드 `/report-stock <ticker>`(또는 `python -m src.main <ticker>`)로 발행하는 정적 HTML 분석. cron 자동화 없음. Phase 1(결정론 코어)이 본 디렉토리에 구현되어 있고, Phase 2(세션 내부 LLM + claim-level citation)는 다음 세션에서 추가된다.
+KOSPI/KOSDAQ 임의 종목에 대해 슬래시 커맨드 `/report-stock <ticker>`(또는 `python -m src.main <ticker>`)로 발행하는 정적 HTML 분석. Phase 1(결정론 코어) + Phase 2(Claude Code 세션 LLM 코멘트 + claim-level citation 검증) 모두 구현됨 (2026-05-09). 매시간 자동 빌드는 로컬 Windows 작업 스케줄러(§7).
 
 상세 컨텍스트와 진행 상황은 **HANDOFF.md** 참조.
 
@@ -41,7 +45,10 @@ src/
 │   ├── peer.py            정규화 100 기준 6M 추이 + valuation row
 │   └── macro.py           거시 시리즈 정규화
 ├── validators/            검증 로직 (실패해도 빌드 성공, 보고만)
-│   └── numbers.py         HTML ↔ raw 숫자 대조 (svg/script/data-noverify 제외)
+│   ├── numbers.py         HTML ↔ raw 숫자 대조 (svg/script/data-noverify 제외)
+│   └── citations.py       LLM 슬롯 내 <span data-cite> 가 raw 출처 일치하는지 (Phase 2)
+├── llm/                   LLM 사이드카 → 슬롯 inject (Phase 2)
+│   └── inject.py          data/llm/{ticker}/{date}.json 읽어 슬롯 wrap, citation 적용
 └── renderer/              presentation 레이어 (analyzer 결과 → HTML)
     ├── charts.py          Plotly figure → HTML div
     ├── html.py            Jinja2 환경 + render_skeleton + index 갱신
@@ -71,10 +78,12 @@ src/
 ### 3.2 사후 숫자 대조
 `render_html` 후 반드시 `verify_html_against_raw()`를 호출하고, 결과를 HTML 하단에 표시한다. 검증을 비활성화하지 마라.
 
-### 3.3 LLM 미사용
-- 어떤 코드도 OpenAI, Anthropic, Google AI 등의 SDK를 import 하지 않는다
-- 자연어 요약·해석이 필요한 자리에는 **규칙 기반(rule-based)** 시그널만 표시한다
-- 예: "MA5 > MA20 → 골든", "RSI > 70 → 과매수권" 같은 임계 기반 라벨
+### 3.3 LLM 코멘트 (Phase 2, 2026-05-09 도입)
+- 어떤 Python 코드도 OpenAI, Anthropic, Google AI **SDK 를 자동 호출하지 않는다**. LLM 코멘트는 Claude Code 세션 (이 어시스턴트) 이 직접 작성한 후 `data/llm/{ticker}/{date}.json` 사이드카로 저장한다.
+- main.py 빌드 시 `src/llm/inject.py` 가 사이드카를 읽어 슬롯에 inject 한다. 사이드카가 없으면 Phase 1 의 룰 기반 fallback 을 그대로 사용한다.
+- 슬롯 내 **모든 numeric claim** 은 `<span data-cite="{file}:{json-path}:{value}">` 로 wrap 한다.
+- `src/validators/citations.py` 가 모든 data-cite 를 raw 파일에서 검증. mismatch 비율 >5% 면 배지 fail.
+- 정성적 표현 (예: "강세 추세 유지") 은 자유, 그러나 수치는 반드시 raw 출처 매칭.
 
 ### 3.4 출처 표기
 HTML footer에 항상 다음을 표시:
@@ -200,7 +209,7 @@ schtasks /create /sc HOURLY /tn "KRX_Reporter" /tr "powershell -NoProfile -Execu
 ## 10. 자주 묻는 질문 (FAQ for AI assistants)
 
 **Q: LLM API를 추가해도 되나?**
-A: 아니다. §0.3과 §3.3 위반. 정말 필요하면 사용자에게 명시적으로 confirm 받아라.
+A: Python 코드에서 OpenAI/Anthropic/Google SDK **자동 호출은 금지**. Phase 2 진입(2026-05-09)으로 LLM 코멘트는 도입됐지만, 호출 주체는 Claude Code 세션(이 어시스턴트) 자체이며 결과물을 `data/llm/{ticker}/{date}.json` 사이드카로 저장한다. main.py 가 그 사이드카를 읽어 슬롯에 inject. 새 SDK 의존성 추가 필요 없음. 모든 numeric claim 에 `<span data-cite>` 의무 — `validators/citations.py` 가 검증.
 
 **Q: 차트 라이브러리를 Recharts/Chart.js로 바꿔도 되나?**
 A: 안 된다. Python에서 서버사이드 렌더 후 정적 HTML에 embed하는 게 핵심 (Actions 환경에서 작동). Plotly는 그래서 선택됐다.
@@ -217,8 +226,11 @@ A: 안 된다 (§8). 사용자 환경 단순화 우선.
 **Q: 새 종목 분석을 추가하라는 요청이 왔다.**
 A: 더 이상 `TARGET` 상수가 없다. CLI 인자(`python -m src.main <ticker>`)로 종목 코드를 전달하면 피어가 자동 선정된다. ticker별 디렉토리(`data/output/{ticker}/`)와 ticker_index/ root_index 가 자동 갱신된다.
 
-**Q: Phase 2 는 무엇이 추가되나?**
-A: 슬래시 커맨드 (`/report-stock`), Claude Code 세션 내부에서 LLM 코멘트 작성, `validators/citations.py` 의 claim-level citation 검증. §0.3 / §3.3 의 "LLM 미사용" 표현은 Phase 2 진입 시 갱신 예정.
+**Q: Phase 2 는 무엇이 추가됐나?**
+A: 슬래시 커맨드 (`.claude/commands/report-stock.md`), `src/llm/inject.py` (LLM 사이드카 → 슬롯 inject), `src/validators/citations.py` (claim-level citation 검증). §0.3 / §3.3 갱신 완료 (2026-05-09).
+
+**Q: LLM 슬롯 작성은 어떻게 시작하나?**
+A: 사용자가 `/report-stock <ticker>` 입력 → 슬래시 커맨드 본문 따라 (1) `python -m src.main <ticker>` 빌드 → (2) `data/raw/{date}/{ticker}_*.json` 읽고 numeric 인지 → (3) 슬롯 6개 작성 + citation 포함하여 `data/llm/{ticker}/{date}.json` 저장 → (4) `python -m src.main <ticker>` 재빌드 → (5) `validators/citations.py` 통과 확인.
 
 ## 11. 변경 시 함께 갱신해야 하는 문서
 

@@ -35,6 +35,7 @@ from src.config import (
     DISCLAIMER_KO,
     DEFAULT_MACRO,
     DISCLOSURE_LOOKBACK_DAYS,
+    LLM_DIR,
     MACRO_LOOKBACK_DAYS,
     OUTPUT_DIR,
     PEER_N,
@@ -44,10 +45,12 @@ from src.config import (
     SECTOR_MACRO_MAP,
 )
 from src.fallbacks import pykrx_price
+from src.llm import inject as llm_inject
 from src.meta import peers as peers_module
 from src.meta import ticker as ticker_module
 from src.renderer import charts as chart_builder
 from src.renderer import html as html_renderer
+from src.validators import citations as citations_validator
 from src.validators import numbers as numbers_validator
 
 logger = logging.getLogger(__name__)
@@ -484,6 +487,14 @@ def build(args: CliArgs) -> Path:
         "s4_macro": s4_macro_text,
     }
 
+    # Phase 2: LLM 사이드카 inject. 사이드카가 없으면 fallback 그대로.
+    sidecar = llm_inject.load_sidecar(args.ticker, date_str, LLM_DIR)
+    llm_slots = llm_inject.inject_slots(sidecar)
+    if llm_slots:
+        slots.update(llm_slots)
+        logger.info("LLM 사이드카 적용: %d 슬롯", len(llm_slots))
+    llm_slot_keys = set(llm_slots.keys())
+
     # ─── Render context ────────────────────────────────────────────
     sources = []
     if price_meta:
@@ -521,12 +532,34 @@ def build(args: CliArgs) -> Path:
         "disclaimer_ko": DISCLAIMER_KO,
         "disclaimer_en": DISCLAIMER_EN,
         "validation": None,
+        "citations": None,
+        "llm_slot_keys": llm_slot_keys,
     }
 
     # ─── analyzer 파생값을 raw_dir 에 함께 저장 (validator multiset 확장) ──
     # raw JSON 만으로는 RSI / 52주 위치 등 derived 값이 unmatched 로 잡히므로,
     # ``{ticker}_enriched.json`` 으로 같이 저장하면 validator 의 ``{ticker}_*.json`` glob
     # 에 자동 인식되어 매칭률이 올라간다.
+    # 수급 요약 (5일 누적 / 마지막 일자) — KRW + 억원 양쪽 단위 모두 두어
+    # LLM citation 시 어느 단위로 인용해도 매칭되게 한다.
+    flow_summary: dict[str, Any] = {}
+    if not enriched_flow.empty:
+        for canon, candidates in (
+            ("foreign", ("외국인합계", "외국인계", "외국인")),
+            ("institution", ("기관합계", "기관계", "기관")),
+            ("individual", ("개인",)),
+        ):
+            col = next((c for c in candidates if c in enriched_flow.columns), None)
+            if col is None:
+                continue
+            series = enriched_flow[col].astype(float)
+            last5 = float(series.tail(5).sum())
+            last_day = float(series.iloc[-1])
+            flow_summary[f"{canon}_net_5d_krw"] = last5
+            flow_summary[f"{canon}_net_5d_oku"] = round(last5 / 1e8, 1)
+            flow_summary[f"{canon}_net_last_day_krw"] = last_day
+            flow_summary[f"{canon}_net_last_day_oku"] = round(last_day / 1e8, 1)
+
     enriched_payload = {
         "price_records": json.loads(enriched_price.to_json(orient="records"))
         if not enriched_price.empty
@@ -535,6 +568,7 @@ def build(args: CliArgs) -> Path:
         "header": header,
         "peer_rows": peer_rows,
         "macro_cards": macro_cards,
+        "flow_summary": flow_summary,
     }
     _save_raw(
         {
@@ -556,12 +590,16 @@ def build(args: CliArgs) -> Path:
     html1 = html_renderer.render_skeleton(ctx)
     out_path.write_text(html1, encoding="utf-8")
 
-    # validate
+    # validate (numbers v2 + Phase 2 citations)
     val = numbers_validator.verify_html_against_raw(out_path, raw_dir, ticker=args.ticker)
     numbers_validator.write_sidecar(val, out_path)
 
+    cite_val = citations_validator.verify_html_citations(out_path, raw_dir)
+    citations_validator.write_citations_sidecar(cite_val, out_path)
+
     # 2차 렌더 (validation 포함)
     ctx["validation"] = val
+    ctx["citations"] = cite_val
     html2 = html_renderer.render_skeleton(ctx)
     out_path.write_text(html2, encoding="utf-8")
 

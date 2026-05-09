@@ -9,6 +9,7 @@ ROOT_DIR: Path = Path(__file__).resolve().parents[1]
 DATA_DIR: Path = ROOT_DIR / "data"
 RAW_DIR: Path = DATA_DIR / "raw"
 OUTPUT_DIR: Path = DATA_DIR / "output"
+LLM_DIR: Path = DATA_DIR / "llm"  # Phase 2 — LLM 사이드카
 TEMPLATE_DIR: Path = Path(__file__).resolve().parent / "renderer" / "templates"
 
 # ─── 분석 설정 ────────────────────────────────────────────────────────

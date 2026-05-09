@@ -1,0 +1,48 @@
+{
+  "ticker": "329180",
+  "as_of": "2026-05-08",
+  "generated_at": "2026-05-09T09:15:00+09:00",
+  "slots": {
+    "brief": {
+      "raw_text": "5월 8일 종가 658,000원으로 전일 대비 -5.05% 큰 폭 하락. 외국인이 -661.6억원 순매도하며 조선 피어 동반 약세.",
+      "citations": [
+        {"token": "658,000", "file": "329180_enriched.json", "path": "data.header.price_now", "value": 658000},
+        {"token": "-5.05%", "file": "329180_enriched.json", "path": "data.header.change_pct", "value": -5.05},
+        {"token": "-661.6", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -661.6}
+      ]
+    },
+    "s1_price": {
+      "raw_text": "5월 8일 거래량 620,226주 — 외국인 -661.6억원 순매도가 가격 압박을 주도. 5거래일 누적 외국인 -1,188.9억원으로 지속적 이탈 흐름.",
+      "citations": [
+        {"token": "620,226", "file": "329180_enriched.json", "path": "data.peer_rows.0.volume", "value": 620226},
+        {"token": "-661.6", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": -661.6},
+        {"token": "-1,188.9", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -1188.9}
+      ]
+    },
+    "s2_tech": {
+      "raw_text": "RSI(14) 61.2 로 중립권 유지하지만 52주 위치 86.2% 의 고점권에서 -5.05% 급락. MA5>MA20 골든 구조는 살아있으나 과열 부담 시그널이 동시 작동.",
+      "citations": [
+        {"token": "61.2", "file": "329180_enriched.json", "path": "data.signals.rsi", "value": 61.2},
+        {"token": "86.2", "file": "329180_enriched.json", "path": "data.signals.week52_pos", "value": 86.2},
+        {"token": "-5.05%", "file": "329180_enriched.json", "path": "data.header.change_pct", "value": -5.05}
+      ]
+    },
+    "s4_peer": {
+      "raw_text": "조선 피어 4사 모두 동반 하락 — 한화오션 -2.93%, 삼성중공업 -5.19%, 대한조선 -2.71%, 세진중공업 -4.06%. HD현대중공업의 -5.05% 는 삼성중공업 다음으로 큰 낙폭으로, 업종 차익실현 압력이 시총 상위 종목에 집중되는 양상.",
+      "citations": [
+        {"token": "-2.93%", "file": "329180_enriched.json", "path": "data.peer_rows.1.change_pct", "value": -2.93},
+        {"token": "-5.19%", "file": "329180_enriched.json", "path": "data.peer_rows.2.change_pct", "value": -5.19},
+        {"token": "-2.71%", "file": "329180_enriched.json", "path": "data.peer_rows.3.change_pct", "value": -2.71},
+        {"token": "-4.06%", "file": "329180_enriched.json", "path": "data.peer_rows.4.change_pct", "value": -4.06},
+        {"token": "-5.05%", "file": "329180_enriched.json", "path": "data.header.change_pct", "value": -5.05}
+      ]
+    },
+    "s4_macro": {
+      "raw_text": "USD/KRW 1,466.78 원, 전일 대비 -0.69% 하락. 원화 약세 부담은 단기 완화 신호이나 수출주 모멘텀 자체는 외국인 매도 영향이 더 지배적.",
+      "citations": [
+        {"token": "1,466.78", "file": "329180_enriched.json", "path": "data.macro_cards.0.value", "value": 1466.78},
+        {"token": "-0.69%", "file": "329180_enriched.json", "path": "data.macro_cards.0.delta", "value": -0.69}
+      ]
+    }
+  }
+}

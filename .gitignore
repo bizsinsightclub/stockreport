@@ -28,6 +28,9 @@ logs/
 # OMC / Claude Code 세션 상태
 .omc/
 .claude/
+# 슬래시 커맨드는 push (다른 환경에서도 즉시 사용 가능)
+!.claude/commands/
+!.claude/commands/**
 
 # Keep directory shells
 !data/raw/.gitkeep

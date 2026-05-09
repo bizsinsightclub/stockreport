@@ -49,9 +49,13 @@ DART `company.json` 의 KSIC induty_code prefix 매칭으로 해결. 5→4→3�
 ### C. ✅ 수급 차트 시각화 점검 — 완료 (2026-05-09)
 `renderer/charts.py:flow_chart` 의 color_map 키가 `외국인` / `기관` / `개인` 만 갖고 있어 pykrx 의 `외국인합계` / `기관합계` / `기타법인` 컬럼이 fallback color 로 그려지던 문제. `_FLOW_DISPLAY_NAME` 매핑 + `_FLOW_PLOT_ORDER` (외국인 마지막 = 위에 그려짐) + `_FLOW_STYLE` (외국인 width 2.4 / warm gold 강조) 추가. y축 단위 억원 변환 + hover 템플릿 명시.
 
-### D. (있다면) Phase 2 진입 준비
+### D. ✅ Phase 2 — LLM 슬롯 + claim-level citation — 완료 (2026-05-09)
+신규: `src/llm/inject.py`, `src/validators/citations.py`, `.claude/commands/report-stock.md`. CLAUDE.md §0.3, §3.3, §10 갱신. main.py 가 사이드카 inject + 두 검증기(numbers + citations) 호출. 329180 데모 완료 — numbers 96/96 / citations 16/16 모두 `pass`. 슬래시 커맨드 사용법은 `.claude/commands/report-stock.md` 참고.
 
-`/report-stock` 슬래시 커맨드 + 세션 LLM 코멘트 + claim-level citation. 슬롯 6개(brief, s1_price, s2_tech, s3_disc_*, s4_peer, s4_macro)는 이미 템플릿에 마킹되어 있음. plan: `C:\Users\User\.claude\plans\claude-md-handoff-md-fancy-pinwheel.md` §3, §4.
+**작동 방식**:
+1. 사용자가 `/report-stock <ticker>` 입력 → Claude Code 세션이 슬래시 커맨드 본문 따라 빌드 → raw 읽기 → 슬롯 작성 + citation → 사이드카 저장 → 재빌드 → 검증.
+2. `data/llm/{ticker}/{date}.json` 가 있으면 main.py 가 자동으로 inject. 없으면 Phase 1 fallback.
+3. 매시간 hourly 자동 빌드는 사이드카가 있으면 그대로 inject (LLM 호출 없이 정적 reuse).
 
 ## 4. 사용자가 직접 할 것 (다음 세션 시작 전)
 

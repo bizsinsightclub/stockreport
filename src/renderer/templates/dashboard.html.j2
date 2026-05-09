@@ -100,6 +100,9 @@
   .validation{margin-top:24px;padding:16px;border:1px dashed var(--border);font-family:var(--mono);font-size:11px;color:var(--muted)}
   .validation.fail{border-color:var(--up);color:var(--up)}
   .validation.pass{border-color:var(--accent);color:var(--accent)}
+  .validation.pending{border-color:var(--muted);color:var(--muted)}
+  [data-llm-slot] span[data-cite]{border-bottom:1px dotted var(--accent-soft);cursor:help}
+  [data-llm-slot] span[data-cite]:hover{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -126,7 +129,7 @@
 
   <!-- BRIEF SLOT -->
   <div class="brief-block">
-    <div data-llm-slot="brief" data-noverify="false">{{ slots.brief }}</div>
+    <div {% if 'brief' in llm_slot_keys %}data-llm-slot="brief" data-noverify="false"{% endif %}>{{ slots.brief | safe }}</div>
   </div>
 
   <!-- SIGNAL CARDS -->
@@ -173,7 +176,7 @@
     <div class="chart-card" data-noverify="true">
       {{ chart_price | safe }}
     </div>
-    <div class="slot" data-llm-slot="s1_price" data-noverify="false">{{ slots.s1_price }}</div>
+    <div class="slot" {% if 's1_price' in llm_slot_keys %}data-llm-slot="s1_price" data-noverify="false"{% endif %}>{{ slots.s1_price | safe }}</div>
   </section>
 
   <!-- SECTION 1.5: 외국인/기관/개인 누적 수급 -->
@@ -212,7 +215,7 @@
         <div class="signal-meta">20일 ±2σ</div>
       </div>
     </div>
-    <div class="slot" data-llm-slot="s2_tech" data-noverify="false">{{ slots.s2_tech }}</div>
+    <div class="slot" {% if 's2_tech' in llm_slot_keys %}data-llm-slot="s2_tech" data-noverify="false"{% endif %}>{{ slots.s2_tech | safe }}</div>
   </section>
 
   <!-- SECTION 3: 공시 -->
@@ -241,7 +244,7 @@
             <td><span class="cat-tag {{ d.category }}">{{ d.category }}</span></td>
             <td>{{ d.title }}</td>
             <td>
-              <span class="slot-row" data-llm-slot="s3_disc_{{ loop.index0 }}" data-noverify="false">{{ d.fallback_text }}</span>
+              {% set k = 's3_disc_' ~ loop.index0 %}<span class="slot-row" {% if k in llm_slot_keys %}data-llm-slot="{{ k }}" data-noverify="false"{% endif %}>{{ slots[k] | default(d.fallback_text) | safe }}</span>
             </td>
             <td>{% if d.dart_url %}<a href="{{ d.dart_url }}" target="_blank" rel="noopener">DART ↗</a>{% else %}—{% endif %}</td>
           </tr>
@@ -303,8 +306,8 @@
         </tbody>
       </table>
     </div>
-    <div class="slot" data-llm-slot="s4_peer" data-noverify="false">{{ slots.s4_peer }}</div>
-    {% if peer_note %}<div class="slot-row" style="margin-top:8px">⚠ {{ peer_note }}</div>{% endif %}
+    <div class="slot" {% if 's4_peer' in llm_slot_keys %}data-llm-slot="s4_peer" data-noverify="false"{% endif %}>{{ slots.s4_peer | safe }}</div>
+    {% if peer_note %}<div class="slot-row" style="margin-top:8px" data-noverify="true">⚠ {{ peer_note }}</div>{% endif %}
   </section>
 
   <!-- SECTION 5: 거시 -->
@@ -332,7 +335,7 @@
     </div>
     {% endif %}
 
-    <div class="slot" data-llm-slot="s4_macro" data-noverify="false">{{ slots.s4_macro }}</div>
+    <div class="slot" {% if 's4_macro' in llm_slot_keys %}data-llm-slot="s4_macro" data-noverify="false"{% endif %}>{{ slots.s4_macro | safe }}</div>
     {% if macro_skipped %}
       <div class="slot-row" style="margin-top:8px">⚠ 미수집 거시 시리즈: {{ macro_skipped | join(", ") }}</div>
     {% endif %}
@@ -341,12 +344,20 @@
   <!-- VALIDATION -->
   {% if validation %}
   <div class="validation {{ validation.css_class }}" data-noverify="true">
-    환각 검증: HTML 내 숫자 {{ validation.checked }}개 중 {{ validation.matched }}개 raw 데이터에 일치
+    숫자 대조: HTML 내 숫자 {{ validation.checked }}개 중 {{ validation.matched }}개 raw 데이터에 일치
     {% if validation.unmatched %} · 미일치: {{ validation.unmatched }}개{% if validation.examples %} ({{ validation.examples | join(", ") }} …){% endif %}{% endif %}
     {% if validation.note %} · {{ validation.note }}{% endif %}
   </div>
   {% else %}
-  <div class="validation" data-noverify="true">환각 검증: 보류</div>
+  <div class="validation" data-noverify="true">숫자 대조: 보류</div>
+  {% endif %}
+
+  {% if citations %}
+  <div class="validation {{ citations.css_class }}" data-noverify="true">
+    Citation 검증 (LLM 슬롯): {% if citations.checked %}{{ citations.checked }}개 claim 중 {{ citations.matched }}개 raw 출처 매칭{% else %}LLM 슬롯 미작성{% endif %}
+    {% if citations.unmatched %} · 미일치: {{ citations.unmatched }}개{% if citations.examples_mismatched %} ({{ citations.examples_mismatched | join(" / ") }}){% endif %}{% endif %}
+    {% if citations.note %} · {{ citations.note }}{% endif %}
+  </div>
   {% endif %}
 
   <!-- FOOTER -->
