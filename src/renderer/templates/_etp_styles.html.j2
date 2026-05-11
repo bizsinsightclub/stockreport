@@ -1,0 +1,79 @@
+<style>
+  :root{
+    --bg:#0f0f10;--surface:#16161a;--surface-2:#1c1c20;--text:#e8e6e3;
+    --muted:#7a7a82;--border:#26262b;--up:#e85d4a;--down:#3a7bd5;
+    --accent:#d4a574;--accent-soft:#9c8cb6;
+    --display:'Fraunces',serif;--mono:'JetBrains Mono',monospace;--body:'Noto Sans KR',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--body);font-weight:300;padding:48px 24px}
+  .container{max-width:1180px;margin:0 auto}
+
+  /* HEADER */
+  header{margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:24px}
+  .brand{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--muted);margin-bottom:12px;text-transform:uppercase}
+  h1{font-family:var(--display);font-weight:300;font-size:2.6rem;letter-spacing:-.02em;line-height:1.1}
+  h1 em{font-style:italic;color:var(--accent)}
+  .sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:8px;letter-spacing:.1em}
+  .sub a{color:var(--accent);text-decoration:none}.sub a:hover{text-decoration:underline}
+
+  /* SECTION HEAD */
+  section{margin-bottom:56px}
+  .section-head{display:flex;align-items:baseline;gap:16px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:8px}
+  .section-num{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted)}
+  .section-title{font-family:var(--display);font-weight:300;font-size:1.4rem;letter-spacing:-.01em}
+  .section-title em{font-style:italic;color:var(--accent)}
+
+  /* MARKET SUMMARY ROW */
+  .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+  @media (max-width:760px){.summary-grid{grid-template-columns:1fr}}
+  .summary-card{background:var(--surface);border:1px solid var(--border);padding:20px}
+  .summary-name{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+  .summary-stat{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .summary-cell .label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+  .summary-cell .val{font-family:var(--display);font-size:1.1rem;color:var(--text)}
+  .gainers{color:var(--up)}.losers{color:var(--down)}
+
+  /* INSIGHTS */
+  .insights{list-style:none;display:grid;gap:10px}
+  .insights li{background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--accent);padding:12px 16px;font-size:13.5px;line-height:1.5;color:var(--text)}
+  .insights li::before{content:"▸";color:var(--accent);margin-right:8px;font-size:11px}
+  .insights li b{font-weight:500;color:var(--accent-soft)}
+
+  /* TABLES */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:10px 8px;border-bottom:1px solid var(--border);text-align:left;font-weight:500}
+  td{padding:10px 8px;border-bottom:1px solid #1f1f22;vertical-align:middle}
+  tr:hover td{background:var(--surface-2)}
+  td.num{font-family:var(--mono);text-align:right}
+  th.num{text-align:right}
+  td.up{color:var(--up)}
+  td.down{color:var(--down)}
+  .table-wrap{background:var(--surface);border:1px solid var(--border);padding:8px 12px;overflow-x:auto}
+  .ticker-code{font-family:var(--mono);font-size:11px;color:var(--muted)}
+
+  /* AMC GRID (운용사별) */
+  .amc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+  .amc-card{background:var(--surface);border:1px solid var(--border);padding:14px 16px}
+  .amc-name{font-size:13px;color:var(--text);margin-bottom:4px}
+  .amc-tv{font-family:var(--mono);font-size:11px;color:var(--accent)}
+  .amc-count{font-family:var(--mono);font-size:10px;color:var(--muted)}
+
+  /* PLACEHOLDER */
+  .placeholder{background:var(--surface);border:1px dashed var(--border);padding:24px;text-align:center;color:var(--muted);font-size:12px;font-family:var(--mono)}
+
+  /* TICKER LIST */
+  ul.ticker-list{list-style:none;background:var(--surface);border:1px solid var(--border)}
+  ul.ticker-list li{padding:18px 22px;border-bottom:1px solid #1f1f22;display:grid;grid-template-columns:54px 1fr auto;gap:18px;align-items:center}
+  ul.ticker-list li:last-child{border-bottom:none}
+  ul.ticker-list .monogram{width:46px;height:46px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--display);font-size:1.3rem;color:var(--bg);font-weight:500;letter-spacing:0;background:linear-gradient(135deg,var(--accent) 0%,var(--accent-soft) 100%);box-shadow:0 0 0 1px var(--border)}
+  ul.ticker-list .info-name{font-size:15px;color:var(--text);font-weight:400;margin-bottom:2px}
+  ul.ticker-list .info-name a{color:var(--text);text-decoration:none}
+  ul.ticker-list .info-name a:hover{color:var(--accent)}
+  ul.ticker-list .info-meta{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.05em}
+  ul.ticker-list .latest{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:right;line-height:1.5}
+  ul.ticker-list .latest .date{color:var(--accent-soft)}
+
+  footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8}
+  footer a{color:var(--muted)}footer a:hover{color:var(--accent)}
+</style>

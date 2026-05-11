@@ -106,20 +106,18 @@ def render_market_archive(
     *,
     output_dir: Path = OUTPUT_DIR,
 ) -> Path:
-    """``data/output/market/{date}.html`` — 그날의 ETF/ETN/ELW 시장 개요 아카이브.
+    """``data/output/market/{date}.html`` — 그날의 ETF/ETN/ELW 인터랙티브 대시보드.
 
-    ``root_index.html.j2`` 를 ``archive_mode=True`` 로 렌더 — 종목 리스트와 '지난
-    시장 리포트' 목록은 빠지고 '← 메인으로' 링크가 헤더에 추가된다.
+    ``market_dashboard.html.j2`` 로 렌더. ``market_overview`` 는 ``overviews`` (각 kind
+    가 ``rows`` 전체 포함), ``statuses``, ``as_of``, ``insights`` 를 담는다. 정렬·필터·
+    검색은 클라이언트 JS (임베드 데이터). '← 메인으로' 링크가 헤더에 있다.
     """
     market_dir = output_dir / "market"
     market_dir.mkdir(parents=True, exist_ok=True)
     env = _env()
-    template = env.get_template("root_index.html.j2")
+    template = env.get_template("market_dashboard.html.j2")
     html = template.render(
-        tickers=[],
         market_overview=market_overview,
-        market_archives=[],
-        archive_mode=True,
         generated_at=datetime.now(_KST).strftime("%Y-%m-%d %H:%M KST"),
     )
     out = market_dir / f"{date_str}.html"
@@ -184,7 +182,6 @@ def update_root_index(
         tickers=tickers,
         market_overview=market_overview,
         market_archives=_list_market_archives(output_dir),
-        archive_mode=False,
         generated_at=datetime.now(_KST).strftime("%Y-%m-%d %H:%M KST"),
     )
     out = output_dir / "index.html"

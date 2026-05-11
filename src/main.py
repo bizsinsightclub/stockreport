@@ -809,10 +809,16 @@ def build_market_overview(args: CliArgs) -> Path:
     else:
         overviews["ELW"] = market_analyzer.analyze_etp_market([], kind="ELW")
 
-    archive_payload = {"overviews": overviews, "statuses": statuses, "as_of": date_str}
+    insights = market_analyzer.compose_insights(overviews)
+    archive_payload = {
+        "overviews": overviews,
+        "statuses": statuses,
+        "as_of": date_str,
+        "insights": insights,
+    }
     try:
         arch_path = html_renderer.render_market_archive(archive_payload, date_str)
-        logger.info("시장 아카이브: %s", arch_path)
+        logger.info("시장 아카이브: %s (인사이트 %d)", arch_path, len(insights))
     except Exception as exc:  # noqa: BLE001
         logger.warning("시장 아카이브 렌더 실패: %s", exc)
     html_renderer.update_root_index(market_overview=archive_payload)

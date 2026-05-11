@@ -6,86 +6,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#0f0f10;--surface:#16161a;--surface-2:#1c1c20;--text:#e8e6e3;
-    --muted:#7a7a82;--border:#26262b;--up:#e85d4a;--down:#3a7bd5;
-    --accent:#d4a574;--accent-soft:#9c8cb6;
-    --display:'Fraunces',serif;--mono:'JetBrains Mono',monospace;--body:'Noto Sans KR',sans-serif;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--text);font-family:var(--body);font-weight:300;padding:48px 24px}
-  .container{max-width:1180px;margin:0 auto}
-
-  /* HEADER */
-  header{margin-bottom:48px;border-bottom:1px solid var(--border);padding-bottom:24px}
-  .brand{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--muted);margin-bottom:12px;text-transform:uppercase}
-  h1{font-family:var(--display);font-weight:300;font-size:2.6rem;letter-spacing:-.02em;line-height:1.1}
-  h1 em{font-style:italic;color:var(--accent)}
-  .sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:8px;letter-spacing:.1em}
-
-  /* SECTION HEAD */
-  section{margin-bottom:56px}
-  .section-head{display:flex;align-items:baseline;gap:16px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:8px}
-  .section-num{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted)}
-  .section-title{font-family:var(--display);font-weight:300;font-size:1.4rem;letter-spacing:-.01em}
-  .section-title em{font-style:italic;color:var(--accent)}
-
-  /* MARKET SUMMARY ROW */
-  .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
-  @media (max-width:760px){.summary-grid{grid-template-columns:1fr}}
-  .summary-card{background:var(--surface);border:1px solid var(--border);padding:20px}
-  .summary-name{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
-  .summary-stat{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-  .summary-cell .label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
-  .summary-cell .val{font-family:var(--display);font-size:1.1rem;color:var(--text)}
-  .gainers{color:var(--up)}.losers{color:var(--down)}
-
-  /* TABLES */
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:10px 8px;border-bottom:1px solid var(--border);text-align:left;font-weight:500}
-  td{padding:10px 8px;border-bottom:1px solid #1f1f22;vertical-align:middle}
-  tr:hover td{background:var(--surface-2)}
-  td.num{font-family:var(--mono);text-align:right}
-  td.up{color:var(--up)}
-  td.down{color:var(--down)}
-  .table-wrap{background:var(--surface);border:1px solid var(--border);padding:8px 12px;overflow-x:auto}
-  .ticker-code{font-family:var(--mono);font-size:11px;color:var(--muted)}
-
-  /* AMC GRID (운용사별) */
-  .amc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-  .amc-card{background:var(--surface);border:1px solid var(--border);padding:14px 16px}
-  .amc-name{font-size:13px;color:var(--text);margin-bottom:4px}
-  .amc-tv{font-family:var(--mono);font-size:11px;color:var(--accent)}
-  .amc-count{font-family:var(--mono);font-size:10px;color:var(--muted)}
-
-  /* PLACEHOLDER */
-  .placeholder{background:var(--surface);border:1px dashed var(--border);padding:24px;text-align:center;color:var(--muted);font-size:12px;font-family:var(--mono)}
-
-  /* TICKER LIST */
-  ul.ticker-list{list-style:none;background:var(--surface);border:1px solid var(--border)}
-  ul.ticker-list li{padding:18px 22px;border-bottom:1px solid #1f1f22;display:grid;grid-template-columns:54px 1fr auto;gap:18px;align-items:center}
-  ul.ticker-list li:last-child{border-bottom:none}
-  ul.ticker-list .monogram{width:46px;height:46px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--display);font-size:1.3rem;color:var(--bg);font-weight:500;letter-spacing:0;background:linear-gradient(135deg,var(--accent) 0%,var(--accent-soft) 100%);box-shadow:0 0 0 1px var(--border)}
-  ul.ticker-list .info-name{font-size:15px;color:var(--text);font-weight:400;margin-bottom:2px}
-  ul.ticker-list .info-name a{color:var(--text);text-decoration:none}
-  ul.ticker-list .info-name a:hover{color:var(--accent)}
-  ul.ticker-list .info-meta{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.05em}
-  ul.ticker-list .latest{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:right;line-height:1.5}
-  ul.ticker-list .latest .date{color:var(--accent-soft)}
-
-  footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8}
-  footer a{color:var(--muted)}footer a:hover{color:var(--accent)}
-</style>
+{% include "_etp_styles.html.j2" %}
 </head>
 <body>
 <div class="container">
 
   <header>
-    <div class="brand">Daily Equity & ETP Brief{% if archive_mode %} · Archive{% endif %}</div>
-    <h1>KRX {% if archive_mode %}시장 <em>개요</em>{% else %}종목·시장 <em>리포트</em>{% endif %}</h1>
+    <div class="brand">Daily Equity & ETP Brief</div>
+    <h1>KRX 종목·시장 <em>리포트</em></h1>
     <div class="sub">Generated {{ generated_at }}{% if market_overview and market_overview.as_of %} · 시장 기준일 {{ market_overview.as_of }}{% endif %}</div>
-    {% if archive_mode %}<div class="sub" style="margin-top:6px"><a href="../index.html" style="color:var(--accent);text-decoration:none">← 메인으로</a></div>{% endif %}
   </header>
 
   {% if market_overview %}
@@ -111,131 +40,35 @@
           <div class="summary-cell"><div class="label">시가총액 합계</div><div class="val">{% if ov.total_market_cap_oku %}{{ "{:,.0f}".format(ov.total_market_cap_oku) }} 억원{% else %}—{% endif %}</div></div>
         </div>
         {% else %}
-        <div class="placeholder" style="margin:0;padding:14px">데이터 없음 — KRX OpenAPI ETP API 신청 후 활성화 (등록은 <a href="https://openapi.krx.co.kr" target="_blank" style="color:var(--accent)">openapi.krx.co.kr</a>)</div>
+        <div class="placeholder" style="margin:0;padding:14px">데이터 없음 — 해당일 미게시 또는 KRX OpenAPI ETP API 미승인</div>
         {% endif %}
       </div>
       {% endfor %}
     </div>
-  </section>
-
-  <!-- ETF 운용사별 거래대금 -->
-  {% if ovs.ETF and ovs.ETF.by_amc %}
-  <section>
-    <div class="section-head">
-      <div class="section-num">02 / ETF</div>
-      <h2 class="section-title">ETF 운용사 <em>거래대금</em> 상위</h2>
-    </div>
-    <div class="amc-grid">
-      {% for a in ovs.ETF.by_amc %}
-      <div class="amc-card">
-        <div class="amc-name">{{ a.amc }}</div>
-        <div class="amc-tv">{{ "{:,.0f}".format(a.traded_oku) }} 억원</div>
-        <div class="amc-count">종목 {{ a.count }}개</div>
-      </div>
-      {% endfor %}
-    </div>
-  </section>
-  {% endif %}
-
-  <!-- ETF 거래대금 상위 종목 -->
-  {% if ovs.ETF and ovs.ETF.top_by_traded %}
-  <section>
-    <div class="section-head">
-      <div class="section-num">03 / ETF</div>
-      <h2 class="section-title">ETF 거래대금 <em>상위</em> 30</h2>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr>
-          <th>운용사</th><th>종목명 (코드)</th><th class="num">종가</th><th class="num">등락률</th>
-          <th class="num">거래량</th><th class="num">거래대금 (억)</th><th class="num">시총 (억)</th><th class="num">상장좌수</th>
-          <th>기초지수</th>
-        </tr></thead>
-        <tbody>
-        {% for r in ovs.ETF.top_by_traded %}
-          <tr>
-            <td>{{ r.amc or '—' }}</td>
-            <td>{{ r.isu_nm }} <span class="ticker-code">({{ r.isu_cd }})</span></td>
-            <td class="num">{% if r.close %}{{ "{:,.0f}".format(r.close) }}{% else %}—{% endif %}</td>
-            <td class="num {% if r.fluc_rt and r.fluc_rt > 0 %}up{% elif r.fluc_rt and r.fluc_rt < 0 %}down{% endif %}">{% if r.fluc_rt is not none %}{{ "{:+.2f}".format(r.fluc_rt) }}%{% else %}—{% endif %}</td>
-            <td class="num">{% if r.volume %}{{ "{:,.0f}".format(r.volume) }}{% else %}—{% endif %}</td>
-            <td class="num">{{ "{:,.0f}".format(r.traded_oku) }}</td>
-            <td class="num">{% if r.market_cap_oku %}{{ "{:,.0f}".format(r.market_cap_oku) }}{% else %}—{% endif %}</td>
-            <td class="num">{% if r.list_shrs %}{{ "{:,.0f}".format(r.list_shrs) }}{% else %}—{% endif %}</td>
-            <td>{{ r.base_index_name or '—' }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </section>
-  {% endif %}
-
-  <!-- ETN -->
-  <section>
-    <div class="section-head">
-      <div class="section-num">04 / ETN</div>
-      <h2 class="section-title">ETN 거래대금 <em>상위</em></h2>
-    </div>
-    {% if ovs.ETN and ovs.ETN.count > 0 %}
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>종목명 (코드)</th><th class="num">종가</th><th class="num">등락률</th><th class="num">거래량</th><th class="num">거래대금 (억)</th><th class="num">시총 (억)</th><th>기초지수</th></tr></thead>
-        <tbody>
-        {% for r in ovs.ETN.top_by_traded %}
-          <tr>
-            <td>{{ r.isu_nm }} <span class="ticker-code">({{ r.isu_cd }})</span></td>
-            <td class="num">{% if r.close %}{{ "{:,.0f}".format(r.close) }}{% else %}—{% endif %}</td>
-            <td class="num {% if r.fluc_rt and r.fluc_rt > 0 %}up{% elif r.fluc_rt and r.fluc_rt < 0 %}down{% endif %}">{% if r.fluc_rt is not none %}{{ "{:+.2f}".format(r.fluc_rt) }}%{% else %}—{% endif %}</td>
-            <td class="num">{% if r.volume %}{{ "{:,.0f}".format(r.volume) }}{% else %}—{% endif %}</td>
-            <td class="num">{{ "{:,.0f}".format(r.traded_oku) }}</td>
-            <td class="num">{% if r.market_cap_oku %}{{ "{:,.0f}".format(r.market_cap_oku) }}{% else %}—{% endif %}</td>
-            <td>{{ r.base_index_name or '—' }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="placeholder">ETN 데이터 미수집 — KRX OpenAPI <code>etp/etn_bydd_trd</code> 승인 후 자동 활성화</div>
+    {% if market_archives %}
+    <div class="sub" style="margin-top:16px">전체 ETF/ETN/ELW 정렬·필터·검색 →
+      <a href="{{ market_archives[0].href }}">시장 대시보드 ({{ market_archives[0].date }})</a></div>
     {% endif %}
   </section>
 
-  <!-- ELW -->
+  <!-- 인사이트 -->
+  {% if market_overview.insights %}
   <section>
     <div class="section-head">
-      <div class="section-num">05 / ELW</div>
-      <h2 class="section-title">ELW 거래대금 <em>상위</em></h2>
+      <div class="section-num">02 / INSIGHTS</div>
+      <h2 class="section-title">오늘의 <em>시장 인사이트</em></h2>
     </div>
-    {% if ovs.ELW and ovs.ELW.count > 0 %}
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>종목명 (코드)</th><th class="num">종가</th><th class="num">거래량</th><th class="num">거래대금 (억)</th><th class="num">시총 (억)</th><th>기초자산</th></tr></thead>
-        <tbody>
-        {% for r in ovs.ELW.top_by_traded %}
-          <tr>
-            <td>{{ r.isu_nm }} <span class="ticker-code">({{ r.isu_cd }})</span></td>
-            <td class="num">{% if r.close %}{{ "{:,.0f}".format(r.close) }}{% else %}—{% endif %}</td>
-            <td class="num">{% if r.volume %}{{ "{:,.0f}".format(r.volume) }}{% else %}—{% endif %}</td>
-            <td class="num">{{ "{:,.0f}".format(r.traded_oku) }}</td>
-            <td class="num">{% if r.market_cap_oku %}{{ "{:,.0f}".format(r.market_cap_oku) }}{% else %}—{% endif %}</td>
-            <td>{{ r.base_index_name or '—' }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="placeholder">ELW 데이터 미수집 — KRX OpenAPI <code>etp/elw_bydd_trd</code> 승인 후 자동 활성화</div>
-    {% endif %}
+    <ul class="insights">
+      {% for s in market_overview.insights %}<li>{{ s }}</li>{% endfor %}
+    </ul>
   </section>
   {% endif %}
+  {% endif %}
 
-  {% if not archive_mode %}
   <!-- 분석된 종목 리스트 -->
   <section>
     <div class="section-head">
-      <div class="section-num">{% if market_overview %}06{% else %}01{% endif %} / TICKERS</div>
+      <div class="section-num">{% if market_overview %}03{% else %}01{% endif %} / TICKERS</div>
       <h2 class="section-title">분석된 <em>종목</em></h2>
     </div>
     <ul class="ticker-list">
@@ -258,7 +91,7 @@
   {% if market_archives %}
   <section>
     <div class="section-head">
-      <div class="section-num">{% if market_overview %}07{% else %}02{% endif %} / ARCHIVE</div>
+      <div class="section-num">{% if market_overview %}04{% else %}02{% endif %} / ARCHIVE</div>
       <h2 class="section-title">지난 <em>시장 리포트</em></h2>
     </div>
     <ul class="ticker-list">
@@ -267,14 +100,13 @@
         <span class="monogram" data-noverify="true">M</span>
         <div>
           <div class="info-name"><a href="{{ a.href }}">시장 개요 · {{ a.date }}</a></div>
-          <div class="info-meta">ETF / ETN / ELW</div>
+          <div class="info-meta">ETF / ETN / ELW · 정렬·필터 대시보드</div>
         </div>
         <span class="latest"><span class="date">{{ a.date }}</span></span>
       </li>
     {% endfor %}
     </ul>
   </section>
-  {% endif %}
   {% endif %}
 
   <footer>

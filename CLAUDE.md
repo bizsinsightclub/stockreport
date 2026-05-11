@@ -51,8 +51,13 @@ src/
 │   └── inject.py          data/llm/{ticker}/{date}.json 읽어 슬롯 wrap, citation 적용
 └── renderer/              presentation 레이어 (analyzer 결과 → HTML)
     ├── charts.py          Plotly figure → HTML div
-    ├── html.py            Jinja2 환경 + render_skeleton + index 갱신 + render_market_archive (시장 날짜별 아카이브 data/output/market/{date}.html)
-    └── templates/         Jinja2 템플릿 (dashboard / ticker_index / root_index — root_index 는 archive_mode 플래그로 시장 아카이브 페이지도 렌더)
+    ├── html.py            Jinja2 환경 + render_skeleton + index 갱신 + render_market_archive (ETP 인터랙티브 대시보드 data/output/market/{date}.html)
+    └── templates/         Jinja2 템플릿:
+        ├── dashboard.html.j2        종목 일일 리포트
+        ├── ticker_index.html.j2     종목별 발행 목록
+        ├── root_index.html.j2       루트 인덱스 (시장 요약 + 인사이트 5 + 종목 목록 + 아카이브 링크)
+        ├── market_dashboard.html.j2 ETP 인터랙티브 대시보드 (탭 + 정렬/필터/검색, 클라이언트 vanilla JS)
+        └── _etp_styles.html.j2      디자인 토큰 + 공통 CSS 파셜 (root_index / market_dashboard 가 include)
 ```
 
 산출물 디렉토리:
@@ -60,8 +65,8 @@ src/
 data/output/
 ├── {ticker}/{YYYY-MM-DD}.html   종목별 일일 리포트
 ├── {ticker}/index.html          종목별 발행 목록
-├── market/{YYYY-MM-DD}.html     시장 개요(ETF/ETN/ELW) 날짜별 아카이브 (--market 빌드 시 누적)
-└── index.html                   루트 인덱스 (최신 시장 개요 + 종목 목록 + 시장 아카이브 날짜 링크)
+├── market/{YYYY-MM-DD}.html     ETP 인터랙티브 대시보드 (ETF/ETN/ELW 탭 + 정렬·필터·검색 + 인사이트 5, --market 빌드 시 날짜별 누적)
+└── index.html                   루트 인덱스 (최신 시장 요약 + 인사이트 5 + 종목 목록 + 시장 대시보드 날짜 링크)
 ```
 
 **모듈 의존성 규칙 (위반 금지)**:

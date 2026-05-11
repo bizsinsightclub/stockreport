@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>KRX 시장 개요{% if market_overview and market_overview.as_of %} · {{ market_overview.as_of }}{% endif %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+{% include "_etp_styles.html.j2" %}
+<style>
+  /* 대시보드 전용 */
+  .tabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border)}
+  .tab{background:none;border:1px solid var(--border);border-bottom:none;color:var(--muted);font-family:var(--mono);font-size:12px;letter-spacing:.1em;padding:9px 18px;cursor:pointer;text-transform:uppercase}
+  .tab:hover{color:var(--text)}
+  .tab.active{color:var(--accent);border-color:var(--accent);position:relative;top:1px;background:var(--surface)}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:14px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .controls label{display:flex;align-items:center;gap:6px}
+  .controls select,.controls input{background:var(--surface-2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:12px;padding:6px 8px}
+  .controls input{width:180px}
+  .controls .count{margin-left:auto;color:var(--muted)}
+  th.sortable{cursor:pointer;user-select:none;white-space:nowrap}
+  th.sortable:hover{color:var(--text)}
+  #etp-table tbody tr td{font-size:12.5px}
+  .nojs{background:var(--surface);border:1px dashed var(--border);padding:20px;text-align:center;color:var(--muted);font-size:12px;font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="brand">Daily Equity & ETP Brief · Archive</div>
+    <h1>KRX 시장 <em>개요</em></h1>
+    <div class="sub">Generated {{ generated_at }}{% if market_overview and market_overview.as_of %} · 시장 기준일 {{ market_overview.as_of }}{% endif %}</div>
+    <div class="sub" style="margin-top:6px"><a href="../index.html">← 메인으로</a></div>
+  </header>
+
+  {% set ovs = market_overview.overviews %}
+  {% set st = market_overview.statuses %}
+
+  <!-- 시장 요약 카드 -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">01 / MARKET</div>
+      <h2 class="section-title">시장 <em>요약</em> · ETF / ETN / ELW</h2>
+    </div>
+    <div class="summary-grid">
+      {% for kind in ['ETF','ETN','ELW'] %}
+      {% set ov = ovs.get(kind) %}
+      <div class="summary-card">
+        <div class="summary-name">{{ kind }}{% if kind == 'ETN' and st.etn != 200 %} · API 미승인 ({{ st.etn }}){% elif kind == 'ELW' and st.elw != 200 %} · API 미승인 ({{ st.elw }}){% endif %}</div>
+        {% if ov and ov.count > 0 %}
+        <div class="summary-stat">
+          <div class="summary-cell"><div class="label">종목수</div><div class="val">{{ "{:,}".format(ov.count) }}</div></div>
+          <div class="summary-cell"><div class="label">거래대금 합계</div><div class="val">{% if ov.total_traded_oku is not none %}{{ "{:,.0f}".format(ov.total_traded_oku) }} 억원{% else %}—{% endif %}</div></div>
+          <div class="summary-cell"><div class="label">상승 / 하락</div><div class="val"><span class="gainers">{{ ov.gainers }}</span> / <span class="losers">{{ ov.losers }}</span></div></div>
+          <div class="summary-cell"><div class="label">시가총액 합계</div><div class="val">{% if ov.total_market_cap_oku %}{{ "{:,.0f}".format(ov.total_market_cap_oku) }} 억원{% else %}—{% endif %}</div></div>
+        </div>
+        {% else %}
+        <div class="placeholder" style="margin:0;padding:14px">데이터 없음 (해당일 미게시 또는 API 미승인)</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- 인사이트 -->
+  {% if market_overview.insights %}
+  <section>
+    <div class="section-head">
+      <div class="section-num">02 / INSIGHTS</div>
+      <h2 class="section-title">오늘의 <em>시장 인사이트</em></h2>
+    </div>
+    <ul class="insights">
+      {% for s in market_overview.insights %}<li>{{ s }}</li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <!-- ETF 운용사별 거래대금 (퀵 글랜스) -->
+  {% if ovs.ETF and ovs.ETF.by_amc %}
+  <section>
+    <div class="section-head">
+      <div class="section-num">03 / ETF</div>
+      <h2 class="section-title">운용사별 <em>거래대금</em> 상위</h2>
+    </div>
+    <div class="amc-grid">
+      {% for a in ovs.ETF.by_amc %}
+      <div class="amc-card">
+        <div class="amc-name">{{ a.amc }}</div>
+        <div class="amc-tv">{{ "{:,.0f}".format(a.traded_oku) }} 억원</div>
+        <div class="amc-count">종목 {{ a.count }}개</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- 인터랙티브 종목 테이블 -->
+  <section>
+    <div class="section-head">
+      <div class="section-num">04 / EXPLORE</div>
+      <h2 class="section-title">종목 <em>탐색</em> · 정렬 / 필터 / 검색</h2>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-kind="etf">ETF</button>
+      <button class="tab" data-kind="etn">ETN</button>
+      <button class="tab" data-kind="elw">ELW</button>
+    </div>
+
+    <div class="controls">
+      <label>정렬
+        <select id="sortsel">
+          <option value="traded_oku">거래대금</option>
+          <option value="volume">거래량</option>
+          <option value="fluc_rt">등락률</option>
+          <option value="market_cap_oku">시가총액</option>
+          <option value="close">종가</option>
+          <option value="isu_nm">종목명</option>
+        </select>
+      </label>
+      <label id="flt-wrap">필터 <select id="flt"></select></label>
+      <label>검색 <input id="q" type="search" placeholder="종목명·코드·기초자산" autocomplete="off"></label>
+      <span class="count">표시 <span id="row-count">—</span></span>
+    </div>
+
+    <div class="table-wrap">
+      <table id="etp-table">
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <noscript><div class="nojs">인터랙티브 종목 표는 JavaScript가 필요합니다. (요약·운용사·인사이트는 위에 그대로 표시됩니다.)</div></noscript>
+  </section>
+
+  <footer>
+    데이터 소스: KRX OpenAPI <code>etp/{etf,etn,elw}_bydd_trd</code><br>
+    Generated {{ generated_at }}{% if market_overview.as_of %} · 시장 기준일 {{ market_overview.as_of }}{% endif %}<br>
+    본 리포트는 정보 제공 목적이며 투자 조언이 아닙니다.
+  </footer>
+
+</div>
+
+{% set etp_data = {"etf": (ovs.ETF.rows if ovs.ETF else []), "etn": (ovs.ETN.rows if ovs.ETN else []), "elw": (ovs.ELW.rows if ovs.ELW else [])} %}
+<script type="application/json" id="etp-data">{{ etp_data | tojson }}</script>
+<script>
+(function(){
+  "use strict";
+  var DATA;
+  try { DATA = JSON.parse(document.getElementById("etp-data").textContent); }
+  catch(e){ DATA = {etf:[], etn:[], elw:[]}; }
+
+  // [key, label, type]  type: 'n' numeric / 't' text / 'pct' percent / 'name' 종목명
+  var COLS = {
+    etf: [["amc","운용사","t"],["isu_nm","종목명 (코드)","name"],["close","종가","n"],["fluc_rt","등락률","pct"],["volume","거래량","n"],["traded_oku","거래대금(억)","n"],["market_cap_oku","시총(억)","n"],["base_index_name","기초지수","t"]],
+    etn: [["isu_nm","종목명 (코드)","name"],["close","종가","n"],["fluc_rt","등락률","pct"],["volume","거래량","n"],["traded_oku","거래대금(억)","n"],["market_cap_oku","시총(억)","n"],["base_index_name","기초지수","t"]],
+    elw: [["isu_nm","종목명 (코드)","name"],["close","종가","n"],["fluc_rt","등락률","pct"],["volume","거래량","n"],["traded_oku","거래대금(억)","n"],["market_cap_oku","시총(억)","n"],["base_index_name","기초자산","t"]]
+  };
+  var FILTER_FIELD = {etf:"amc", etn:"base_index_name", elw:"base_index_name"};
+  var FILTER_LABEL = {etf:"운용사", etn:"기초지수", elw:"기초자산"};
+  var TEXT_KEYS = {isu_nm:1, amc:1, base_index_name:1};
+
+  var state = {kind:"etf", sortKey:"traded_oku", sortDir:-1, filter:"", q:""};
+
+  function esc(s){ var d=document.createElement("div"); d.textContent = (s==null?"":String(s)); return d.innerHTML; }
+  function fmtNum(v){ return (v==null||isNaN(v)) ? "—" : Number(v).toLocaleString("ko-KR"); }
+  function fmtPct(v){ return (v==null||isNaN(v)) ? "—" : (v>=0?"+":"") + Number(v).toFixed(2) + "%"; }
+  function defaultDir(k){ return TEXT_KEYS[k] ? 1 : -1; }
+
+  function filtered(){
+    var rows = (DATA[state.kind]||[]).slice();
+    if(state.filter){ var f=FILTER_FIELD[state.kind]; rows = rows.filter(function(r){ return (r[f]||"")===state.filter; }); }
+    if(state.q){ var q=state.q.toLowerCase(); rows = rows.filter(function(r){
+      return (r.isu_nm||"").toLowerCase().indexOf(q)>=0 || (r.isu_cd||"").indexOf(q)>=0 || (r.base_index_name||"").toLowerCase().indexOf(q)>=0;
+    }); }
+    var k=state.sortKey, d=state.sortDir;
+    rows.sort(function(a,b){
+      var av=a[k], bv=b[k];
+      if(TEXT_KEYS[k]){ av=(av||""); bv=(bv||""); return av<bv ? -d : (av>bv ? d : 0); }
+      av = (av==null||isNaN(av)) ? -Infinity : Number(av);
+      bv = (bv==null||isNaN(bv)) ? -Infinity : Number(bv);
+      return (av-bv)*d;
+    });
+    return rows;
+  }
+
+  function renderHead(){
+    var cols=COLS[state.kind], html="<tr>";
+    for(var i=0;i<cols.length;i++){
+      var k=cols[i][0], label=cols[i][1], typ=cols[i][2];
+      var arrow = (state.sortKey===k) ? (state.sortDir<0 ? " ↓" : " ↑") : "";
+      var cls = "sortable" + (typ==="n"||typ==="pct" ? " num" : "");
+      html += '<th class="'+cls+'" data-key="'+k+'">'+esc(label)+arrow+'</th>';
+    }
+    document.getElementById("thead").innerHTML = html+"</tr>";
+  }
+
+  function renderBody(){
+    var cols=COLS[state.kind], rows=filtered(), out=[];
+    for(var i=0;i<rows.length;i++){
+      var r=rows[i], tds=[];
+      for(var j=0;j<cols.length;j++){
+        var k=cols[j][0], typ=cols[j][2];
+        if(typ==="name"){ tds.push('<td>'+esc(r.isu_nm)+' <span class="ticker-code">('+esc(r.isu_cd)+')</span></td>'); }
+        else if(typ==="pct"){ var v=r.fluc_rt; var cc=(v>0?"up":(v<0?"down":"")); tds.push('<td class="num '+cc+'">'+fmtPct(v)+'</td>'); }
+        else if(typ==="n"){ tds.push('<td class="num">'+fmtNum(r[k])+'</td>'); }
+        else { tds.push('<td>'+esc(r[k]||"—")+'</td>'); }
+      }
+      out.push("<tr>"+tds.join("")+"</tr>");
+    }
+    document.getElementById("tbody").innerHTML = out.length ? out.join("") :
+      '<tr><td colspan="'+cols.length+'" style="text-align:center;color:var(--muted);padding:22px">조건에 맞는 종목이 없습니다.</td></tr>';
+    document.getElementById("row-count").textContent = rows.length.toLocaleString("ko-KR") + " / " + (DATA[state.kind]||[]).length.toLocaleString("ko-KR");
+  }
+
+  function rebuildFilter(){
+    var f=FILTER_FIELD[state.kind];
+    var seen={}, vals=[];
+    (DATA[state.kind]||[]).forEach(function(r){ var v=r[f]; if(v && !seen[v]){ seen[v]=1; vals.push(v); } });
+    vals.sort();
+    var sel=document.getElementById("flt");
+    var html='<option value="">'+esc(FILTER_LABEL[state.kind])+' 전체</option>';
+    for(var i=0;i<vals.length;i++){ html += '<option>'+esc(vals[i])+'</option>'; }
+    sel.innerHTML = html;
+    document.getElementById("flt-wrap").style.display = vals.length>1 ? "" : "none";
+  }
+
+  function render(){ renderHead(); renderBody(); }
+
+  // events
+  var tabs=document.querySelectorAll(".tab");
+  for(var i=0;i<tabs.length;i++){
+    tabs[i].addEventListener("click", function(){
+      for(var j=0;j<tabs.length;j++) tabs[j].classList.remove("active");
+      this.classList.add("active");
+      state.kind=this.getAttribute("data-kind");
+      state.sortKey="traded_oku"; state.sortDir=-1; state.filter=""; state.q="";
+      document.getElementById("q").value="";
+      document.getElementById("sortsel").value="traded_oku";
+      rebuildFilter(); render();
+    });
+  }
+  document.getElementById("thead").addEventListener("click", function(e){
+    var th=e.target; while(th && th.tagName!=="TH") th=th.parentNode;
+    if(!th || !th.getAttribute("data-key")) return;
+    var k=th.getAttribute("data-key");
+    if(state.sortKey===k){ state.sortDir = -state.sortDir; } else { state.sortKey=k; state.sortDir=defaultDir(k); }
+    var ss=document.getElementById("sortsel"); for(var i=0;i<ss.options.length;i++){ if(ss.options[i].value===k){ ss.value=k; break; } }
+    render();
+  });
+  document.getElementById("sortsel").addEventListener("change", function(e){ state.sortKey=e.target.value; state.sortDir=defaultDir(state.sortKey); render(); });
+  document.getElementById("flt").addEventListener("change", function(e){ state.filter=e.target.value; render(); });
+  document.getElementById("q").addEventListener("input", function(e){ state.q=(e.target.value||"").trim(); render(); });
+
+  rebuildFilter(); render();
+})();
+</script>
+</body>
+</html>
