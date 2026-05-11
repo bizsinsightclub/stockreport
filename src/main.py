@@ -38,6 +38,7 @@ from src.config import (
     DISCLOSURE_LOOKBACK_DAYS,
     LLM_DIR,
     MACRO_LOOKBACK_DAYS,
+    MARKET_DATE_WALKBACK_DAYS,
     OUTPUT_DIR,
     PEER_N,
     PEER_NORMALIZED_LOOKBACK_DAYS,
@@ -703,29 +704,85 @@ def build(args: CliArgs) -> Path:
     return out_path
 
 
-def build_market_overview(args: CliArgs) -> Path:
-    """ETF / ETN / ELW 시장 전반 분석 + root index 갱신.
+def _last_trading_day(d: date) -> date:
+    """주말·한국 공휴일을 건너뛴, ``d`` 이하의 가장 가까운 영업일."""
+    try:
+        import holidays  # requirements.txt
 
-    KRX OpenAPI ``etp/{etf,etn,elw}_bydd_trd`` 가 1순위. ETF 만 미승인 시 pykrx
-    fallback. ETN/ELW 미승인 시 graceful — placeholder 메시지.
+        kr = holidays.country_holidays("KR")
+    except Exception:  # noqa: BLE001
+        kr = set()
+    cur = d
+    while cur.weekday() >= 5 or cur in kr:
+        cur -= timedelta(days=1)
+    return cur
+
+
+def _has_trade_data(etp_meta: dict[str, Any]) -> bool:
+    """KRX OpenAPI ETP 응답이 실제 매매 데이터를 담고 있는지.
+
+    비영업일을 조회하면 종목 행은 반환되지만 ``TDD_CLSPRC``/``ACC_TRDVAL`` 등 매매
+    필드가 모두 빈 문자열이다 (skeleton). 미게시 영업일은 빈 list. 둘 다 False.
+    """
+    if etp_meta.get("status") != 200:
+        return False
+    rows = etp_meta.get("data") or []
+    return any(
+        (r.get("TDD_CLSPRC") or "").strip() or (r.get("ACC_TRDVAL") or "").strip()
+        for r in rows
+    )
+
+
+def _resolve_etp_date(report_date: date) -> tuple[date, dict[str, Any]]:
+    """KRX OpenAPI ETP 실매매 데이터가 있는 가장 최근 영업일 + 그 날의 ETF 응답.
+
+    당일 데이터가 아직 게시되지 않았으면 (KRX OpenAPI 야간/T+1 게시 지연) 직전
+    영업일로 거슬러 올라가며 최대 ``MARKET_DATE_WALKBACK_DAYS`` 영업일 전까지 probe.
+    ``KRX_API_KEY`` 미설정이면 즉시 (report_date, 빈 응답) 반환 — 호출부가 pykrx
+    fallback 으로 graceful degrade.
+    """
+    if not os.environ.get("KRX_API_KEY"):
+        return report_date, krx_etp.fetch_etf_bydd_trd(_yyyymmdd(report_date))
+    day = _last_trading_day(report_date)
+    for _ in range(MARKET_DATE_WALKBACK_DAYS + 1):
+        etf = krx_etp.fetch_etf_bydd_trd(_yyyymmdd(day))
+        if _has_trade_data(etf):
+            if day != report_date:
+                logger.info(
+                    "KRX OpenAPI ETP %s 미게시 → %s 데이터 사용",
+                    report_date.isoformat(),
+                    day.isoformat(),
+                )
+            return day, etf
+        day = _last_trading_day(day - timedelta(days=1))
+    return report_date, krx_etp.fetch_etf_bydd_trd(_yyyymmdd(report_date))
+
+
+def build_market_overview(args: CliArgs) -> Path:
+    """ETF / ETN / ELW 시장 전반 분석 + root index 갱신 + 날짜별 아카이브.
+
+    KRX OpenAPI ``etp/{etf,etn,elw}_bydd_trd`` 가 1순위. 당일 데이터가 아직 게시
+    안 됐으면 최근 영업일로 walk-back (``_resolve_etp_date``). ETF 가 끝까지 비면
+    pykrx fallback. ETN/ELW 가 비면 graceful — placeholder 메시지.
+    아카이브 파일명·시장 기준일(as_of) 은 실제 데이터 날짜를 따른다.
     """
     report_date = args.report_date
-    date_str = report_date.isoformat()
-    todate = _yyyymmdd(report_date)
+    eff_date, krx_etf = _resolve_etp_date(report_date)
+    date_str = eff_date.isoformat()
+    todate = _yyyymmdd(eff_date)
     raw_dir = RAW_DIR / date_str
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     overviews: dict[str, Any] = {}
     statuses: dict[str, int] = {}
 
-    # 1) ETF — KRX OpenAPI → pykrx fallback
-    krx_etf = krx_etp.fetch_etf_bydd_trd(todate)
+    # 1) ETF — _resolve_etp_date 가 가져온 응답 재사용. 끝까지 비면 pykrx fallback.
     statuses["etf"] = krx_etf.get("status", 0)
     if krx_etf.get("status") == 200 and krx_etf.get("data"):
         _save_raw(krx_etf, raw_dir, "_market", "etf")
         overviews["ETF"] = market_analyzer.analyze_etp_market(krx_etf["data"], kind="ETF")
     else:
-        logger.info("KRX OpenAPI ETF 미승인 (status=%s) → pykrx fallback", krx_etf.get("status"))
+        logger.info("KRX OpenAPI ETF 데이터 없음 (status=%s) → pykrx fallback", krx_etf.get("status"))
         try:
             etf_meta = pykrx_price.fetch_etf_market(todate)
             _save_raw(etf_meta, raw_dir, "_market", "etf")
@@ -761,8 +818,9 @@ def build_market_overview(args: CliArgs) -> Path:
     html_renderer.update_root_index(market_overview=archive_payload)
     out_path = OUTPUT_DIR / "index.html"
     logger.info(
-        "MARKET DONE %s: ETF=%d / ETN=%d (status=%s) / ELW=%d (status=%s)",
+        "MARKET DONE %s (기준일 %s): ETF=%d / ETN=%d (status=%s) / ELW=%d (status=%s)",
         out_path,
+        date_str,
         overviews.get("ETF", {}).get("count", 0),
         overviews.get("ETN", {}).get("count", 0),
         statuses.get("etn"),

@@ -19,6 +19,10 @@ DISCLOSURE_LOOKBACK_DAYS: int = 30
 PEER_NORMALIZED_LOOKBACK_DAYS: int = 180  # 6 months
 MACRO_LOOKBACK_DAYS: int = 180
 
+# KRX OpenAPI ETP(ETF/ETN/ELW) 일별매매 데이터는 당일 야간/T+1 게시 지연이 있어,
+# 실매매 데이터가 있는 최근 영업일로 walk-back 한다 (최대 N 영업일 전까지 probe).
+MARKET_DATE_WALKBACK_DAYS: int = 7
+
 # ─── 기술지표 임계치 (Phase 1 assumption: 시장 관행) ──────────────────
 RSI_PERIOD: int = 14
 RSI_OVERBOUGHT: float = 70.0
