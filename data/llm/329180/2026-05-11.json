@@ -1,0 +1,68 @@
+{
+  "ticker": "329180",
+  "as_of": "2026-05-11",
+  "generated_at": "2026-05-11T23:42:00+09:00",
+  "slots": {
+    "brief": {
+      "raw_text": "5월 11일 종가 685,000원, 전일 대비 +4.1% 반등하며 거래량 573,817주를 기록. 외국인 +261.7억원·기관 +419.4억원 동반 순매수로 5/8 급락 직후 수급이 매수로 돌아섰으나, 5거래일 누적은 외국인 -854.2억원으로 여전히 매도 우위. 52주 위치 96.9%의 신고가권을 회복했고 RSI 64.7 중립권에서 골든 구조와 MACD 상승 방향성을 유지 중.",
+      "citations": [
+        {"token": "685,000", "file": "329180_enriched.json", "path": "data.header.price_now", "value": 685000},
+        {"token": "+4.1%", "file": "329180_enriched.json", "path": "data.header.change_pct", "value": 4.1},
+        {"token": "573,817", "file": "329180_enriched.json", "path": "data.volume_metrics.today_volume", "value": 573817},
+        {"token": "+261.7", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": 261.7},
+        {"token": "+419.4", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_last_day_oku", "value": 419.4},
+        {"token": "-854.2", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -854.2},
+        {"token": "96.9%", "file": "329180_enriched.json", "path": "data.signals.week52_pos", "value": 96.9},
+        {"token": "64.7", "file": "329180_enriched.json", "path": "data.signals.rsi", "value": 64.7}
+      ]
+    },
+    "s1_price": {
+      "raw_text": "5월 11일 단일일 외국인 +261.7억원·기관 +419.4억원 동반 순매수, 개인은 -663.1억원 차익실현으로 수급 주체가 교체됐다. 5거래일 누적으로는 외국인 -854.2억원 매도 우위가 이어지나 기관 +188.4억원·개인 +664.3억원이 받쳐낸 구도. 외국인 순매수가 이틀 이상 이어지며 5거래일 누적 마이너스 폭을 좁혀가는 흐름이 1차 매집 검토 영역, 반대로 다시 외국인 매도 우위로 회귀하면 5/8 저점 재확인 가능.",
+      "citations": [
+        {"token": "+261.7", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_last_day_oku", "value": 261.7},
+        {"token": "+419.4", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_last_day_oku", "value": 419.4},
+        {"token": "-663.1", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_last_day_oku", "value": -663.1},
+        {"token": "-854.2", "file": "329180_enriched.json", "path": "data.flow_summary.foreign_net_5d_oku", "value": -854.2},
+        {"token": "+188.4", "file": "329180_enriched.json", "path": "data.flow_summary.institution_net_5d_oku", "value": 188.4},
+        {"token": "+664.3", "file": "329180_enriched.json", "path": "data.flow_summary.individual_net_5d_oku", "value": 664.3}
+      ]
+    },
+    "s2_tech": {
+      "raw_text": "RSI(14) 64.7로 중립권 상단에 위치하며 직전 5/8 급락 이후 빠르게 회복했지만 과매수 영역(70)까지는 여유를 둔 상태. MA5가 MA20 위에 놓인 골든 구조가 유지되고 MACD도 상승 방향성을 지키고 있어 중기 추세는 견조하며, 볼린저는 밴드 내에서 상단을 향하는 흐름. 52주 위치 96.9%로 신고가권에 재진입했으나 +4.1% 반등만으로는 직전 고점 종가 회복까지 추가 여지가 남았다. 매집 관점에서는 RSI 70 미만 유지 + 외국인 순매수 지속이 분할 진입 검토 구간, 매도 관점에서는 RSI 70 재돌파 후 신고가 갱신 실패나 골든 구조 훼손 시 차익실현 검토 가능.",
+      "citations": [
+        {"token": "64.7", "file": "329180_enriched.json", "path": "data.signals.rsi", "value": 64.7},
+        {"token": "96.9%", "file": "329180_enriched.json", "path": "data.signals.week52_pos", "value": 96.9},
+        {"token": "+4.1%", "file": "329180_enriched.json", "path": "data.header.change_pct", "value": 4.1}
+      ]
+    },
+    "s3_disc_0": {"raw_text": "5/8 단일판매·공급계약 자율공시 — 자발적 수주 공시로 매출 가시성 보강.", "citations": []},
+    "s3_disc_1": {"raw_text": "5/8 같은 일자 추가 수주 계약 — 수주 모멘텀 지속.", "citations": []},
+    "s3_disc_2": {"raw_text": "5/7 영업(잠정)실적 공정공시 — 분기 실적 사전 공개로 컨센서스 대비 평가 시점.", "citations": []},
+    "s3_disc_3": {"raw_text": "5/7 연결 기준 영업(잠정)실적 — 별도+연결 동시 공개로 실적 투명성 강조.", "citations": []},
+    "s3_disc_4": {"raw_text": "5/4 단일판매·공급계약 — 5월 첫 주 수주 발표.", "citations": []},
+    "s3_disc_5": {"raw_text": "4/23 IR 개최 안내 — 기관·애널리스트 대상 직접 소통, 컨센서스 갱신 트리거.", "citations": []},
+    "s3_disc_6": {"raw_text": "4/22 단일판매·공급계약 — 수주 누적.", "citations": []},
+    "s3_disc_7": {"raw_text": "4/22 동일 일자 추가 수주 — 수주 양적 dominance.", "citations": []},
+    "s3_disc_8": {"raw_text": "4/20 영업(잠정)실적 공정공시 — 직전 분기 잠정 실적 사전 발표.", "citations": []},
+    "s3_disc_9": {"raw_text": "4/17 단일판매·공급계약 — 4월 중순 수주 흐름.", "citations": []},
+    "s3_disc_10": {"raw_text": "4/16 단일판매·공급계약 자율공시 — 자발적 공시는 시장 친화 시그널.", "citations": []},
+    "s3_disc_11": {"raw_text": "4/15 생산중단 공시 — 일시적 운영 중단, 영향 범위·기간 후속 모니터링 필요.", "citations": []},
+    "s4_peer": {
+      "raw_text": "조선 피어는 등락이 갈렸다 — HD현대중공업 +4.1%, 한화오션 +3.49%, 삼성중공업 +6.26%로 대형 3사는 동반 반등한 반면 대한조선 -1.82%, 세진중공업 -0.37%는 약세. 5/8 업종 동반 급락 직후 시총 상위 종목으로 매수가 먼저 유입된 양상이며, 피어 중 삼성중공업의 반등 폭이 가장 컸고 HD현대중공업은 한화오션과 비슷한 회복 수준으로 업종 동행성이 유지되는 구간. 대한조선·세진중공업의 약세는 종목별 모멘텀 차별화 신호로, 단기로는 대형 3사 반등이 이어질지 후발 종목까지 온기가 확산될지가 업종 매집 강도의 가늠자.",
+      "citations": [
+        {"token": "+4.1%", "file": "329180_enriched.json", "path": "data.peer_rows.0.change_pct", "value": 4.1},
+        {"token": "+3.49%", "file": "329180_enriched.json", "path": "data.peer_rows.1.change_pct", "value": 3.49},
+        {"token": "+6.26%", "file": "329180_enriched.json", "path": "data.peer_rows.2.change_pct", "value": 6.26},
+        {"token": "-1.82%", "file": "329180_enriched.json", "path": "data.peer_rows.3.change_pct", "value": -1.82},
+        {"token": "-0.37%", "file": "329180_enriched.json", "path": "data.peer_rows.4.change_pct", "value": -0.37}
+      ]
+    },
+    "s4_macro": {
+      "raw_text": "USD/KRW 1,472.9원, 전일 대비 +0.06% 사실상 보합으로 환율 변수는 단기 중립. 다만 원화 약세 레벨 자체는 고환율 구간이라 조선·수출주에는 수주 채산성 측면에서 우호적 배경이 유지되는 국면.",
+      "citations": [
+        {"token": "1,472.9", "file": "329180_enriched.json", "path": "data.macro_cards.0.value", "value": 1472.9},
+        {"token": "+0.06%", "file": "329180_enriched.json", "path": "data.macro_cards.0.delta", "value": 0.06}
+      ]
+    }
+  }
+}
