@@ -215,7 +215,10 @@ reporter/
 └── data/
     ├── raw/{날짜}/            # 메타 트리플 raw JSON
     ├── llm/{종목}/{날짜}.json # AI 작성 사이드카
-    └── output/                # 발행된 HTML
+    └── output/
+        ├── {종목}/{날짜}.html # 종목별 일일 리포트
+        ├── market/{날짜}.html # 시장 개요(ETF/ETN/ELW) 날짜별 아카이브
+        └── index.html         # 루트 인덱스 (최신 시장 + 종목 목록 + 아카이브 링크)
 ```
 
 ### 모듈 의존성 규칙 (CLAUDE.md §2)

@@ -51,8 +51,17 @@ src/
 │   └── inject.py          data/llm/{ticker}/{date}.json 읽어 슬롯 wrap, citation 적용
 └── renderer/              presentation 레이어 (analyzer 결과 → HTML)
     ├── charts.py          Plotly figure → HTML div
-    ├── html.py            Jinja2 환경 + render_skeleton + index 갱신
-    └── templates/         Jinja2 템플릿 (dashboard / ticker_index / root_index)
+    ├── html.py            Jinja2 환경 + render_skeleton + index 갱신 + render_market_archive (시장 날짜별 아카이브 data/output/market/{date}.html)
+    └── templates/         Jinja2 템플릿 (dashboard / ticker_index / root_index — root_index 는 archive_mode 플래그로 시장 아카이브 페이지도 렌더)
+```
+
+산출물 디렉토리:
+```
+data/output/
+├── {ticker}/{YYYY-MM-DD}.html   종목별 일일 리포트
+├── {ticker}/index.html          종목별 발행 목록
+├── market/{YYYY-MM-DD}.html     시장 개요(ETF/ETN/ELW) 날짜별 아카이브 (--market 빌드 시 누적)
+└── index.html                   루트 인덱스 (최신 시장 개요 + 종목 목록 + 시장 아카이브 날짜 링크)
 ```
 
 **모듈 의존성 규칙 (위반 금지)**:

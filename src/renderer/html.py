@@ -87,6 +87,46 @@ def update_ticker_index(ticker: str, *, output_dir: Path = OUTPUT_DIR) -> Path:
     return out
 
 
+def _list_market_archives(output_dir: Path) -> list[dict[str, str]]:
+    """``data/output/market/{date}.html`` 아카이브 목록 (날짜 내림차순)."""
+    market_dir = output_dir / "market"
+    if not market_dir.is_dir():
+        return []
+    out: list[dict[str, str]] = []
+    for f in sorted(market_dir.glob("*.html"), reverse=True):
+        if f.name == "index.html":
+            continue
+        out.append({"date": f.stem, "href": f"market/{f.name}"})
+    return out
+
+
+def render_market_archive(
+    market_overview: dict[str, Any],
+    date_str: str,
+    *,
+    output_dir: Path = OUTPUT_DIR,
+) -> Path:
+    """``data/output/market/{date}.html`` — 그날의 ETF/ETN/ELW 시장 개요 아카이브.
+
+    ``root_index.html.j2`` 를 ``archive_mode=True`` 로 렌더 — 종목 리스트와 '지난
+    시장 리포트' 목록은 빠지고 '← 메인으로' 링크가 헤더에 추가된다.
+    """
+    market_dir = output_dir / "market"
+    market_dir.mkdir(parents=True, exist_ok=True)
+    env = _env()
+    template = env.get_template("root_index.html.j2")
+    html = template.render(
+        tickers=[],
+        market_overview=market_overview,
+        market_archives=[],
+        archive_mode=True,
+        generated_at=datetime.now(_KST).strftime("%Y-%m-%d %H:%M KST"),
+    )
+    out = market_dir / f"{date_str}.html"
+    out.write_text(html, encoding="utf-8")
+    return out
+
+
 def update_root_index(
     *,
     output_dir: Path = OUTPUT_DIR,
@@ -97,6 +137,7 @@ def update_root_index(
     ``market_overview`` 가 주어지면 ETF/ETN/ELW 시장 섹션도 함께 렌더 (--market 모드).
     None 이면 직전 캐시 (``_market_overview_cache.json``) 가 있으면 재사용 — 개별
     ticker 빌드가 root index 를 덮어쓸 때 시장 섹션이 사라지지 않도록.
+    하단에 ``data/output/market/`` 아카이브 날짜 목록도 함께 렌더한다.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
     tickers = []
@@ -142,6 +183,8 @@ def update_root_index(
     html = template.render(
         tickers=tickers,
         market_overview=market_overview,
+        market_archives=_list_market_archives(output_dir),
+        archive_mode=False,
         generated_at=datetime.now(_KST).strftime("%Y-%m-%d %H:%M KST"),
     )
     out = output_dir / "index.html"

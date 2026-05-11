@@ -82,9 +82,10 @@
 <div class="container">
 
   <header>
-    <div class="brand">Daily Equity & ETP Brief</div>
-    <h1>KRX 종목·시장 <em>리포트</em></h1>
+    <div class="brand">Daily Equity & ETP Brief{% if archive_mode %} · Archive{% endif %}</div>
+    <h1>KRX {% if archive_mode %}시장 <em>개요</em>{% else %}종목·시장 <em>리포트</em>{% endif %}</h1>
     <div class="sub">Generated {{ generated_at }}{% if market_overview and market_overview.as_of %} · 시장 기준일 {{ market_overview.as_of }}{% endif %}</div>
+    {% if archive_mode %}<div class="sub" style="margin-top:6px"><a href="../index.html" style="color:var(--accent);text-decoration:none">← 메인으로</a></div>{% endif %}
   </header>
 
   {% if market_overview %}
@@ -230,6 +231,7 @@
   </section>
   {% endif %}
 
+  {% if not archive_mode %}
   <!-- 분석된 종목 리스트 -->
   <section>
     <div class="section-head">
@@ -251,6 +253,29 @@
     {% endfor %}
     </ul>
   </section>
+
+  <!-- 지난 시장 리포트 (날짜별 아카이브) -->
+  {% if market_archives %}
+  <section>
+    <div class="section-head">
+      <div class="section-num">{% if market_overview %}07{% else %}02{% endif %} / ARCHIVE</div>
+      <h2 class="section-title">지난 <em>시장 리포트</em></h2>
+    </div>
+    <ul class="ticker-list">
+    {% for a in market_archives %}
+      <li>
+        <span class="monogram" data-noverify="true">M</span>
+        <div>
+          <div class="info-name"><a href="{{ a.href }}">시장 개요 · {{ a.date }}</a></div>
+          <div class="info-meta">ETF / ETN / ELW</div>
+        </div>
+        <span class="latest"><span class="date">{{ a.date }}</span></span>
+      </li>
+    {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+  {% endif %}
 
   <footer>
     데이터 소스: KRX OpenAPI · pykrx · DART OpenAPI · Frankfurter (ECB)<br>

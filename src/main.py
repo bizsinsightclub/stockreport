@@ -752,7 +752,13 @@ def build_market_overview(args: CliArgs) -> Path:
     else:
         overviews["ELW"] = market_analyzer.analyze_etp_market([], kind="ELW")
 
-    html_renderer.update_root_index(market_overview={"overviews": overviews, "statuses": statuses, "as_of": date_str})
+    archive_payload = {"overviews": overviews, "statuses": statuses, "as_of": date_str}
+    try:
+        arch_path = html_renderer.render_market_archive(archive_payload, date_str)
+        logger.info("시장 아카이브: %s", arch_path)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("시장 아카이브 렌더 실패: %s", exc)
+    html_renderer.update_root_index(market_overview=archive_payload)
     out_path = OUTPUT_DIR / "index.html"
     logger.info(
         "MARKET DONE %s: ETF=%d / ETN=%d (status=%s) / ELW=%d (status=%s)",
